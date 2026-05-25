@@ -4,44 +4,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description"
-    content="Enter the haunted manor — an immersive scroll-driven cinematic experience powered by GSAP ScrollTrigger.">
+  <meta name="description" content="Enter the haunted manor — a cinematic horror experience. Built with GSAP.">
   <title>The Manor — Enter If You Dare</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap"
     rel="stylesheet">
+
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- PRELOADER                                       -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="preloader">
+  <!-- Skip to main content (accessibility) -->
+  <a href="#contentSections" class="skip-link">Skip to main content</a>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- PRELOADER                                               -->
+  <!-- Shows while all 163 WebP frames are decoded.           -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="preloader" role="status" aria-label="Loading The Manor">
     <div class="preloader-inner">
       <div class="preloader-icon">
-        <svg viewBox="0 0 100 100" width="80" height="80">
+        <svg viewBox="0 0 100 100" width="80" height="80" aria-hidden="true">
           <circle class="preloader-ring" cx="50" cy="50" r="45" />
         </svg>
-        <span class="preloader-eye">👁</span>
+        <span class="preloader-eye" aria-hidden="true">👁</span>
       </div>
       <h2 class="preloader-title">The Manor</h2>
-      <div class="preloader-bar-track">
+      <div class="preloader-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+        id="preloaderProgress">
         <div class="preloader-bar-fill" id="preloaderBar"></div>
       </div>
-      <p class="preloader-percent" id="preloaderPercent">0%</p>
-      <p class="preloader-hint">Loading frames…</p>
+      <p class="preloader-percent" id="preloaderPercent" aria-live="polite">0%</p>
+      <p class="preloader-hint">Summoning the darkness&hellip;</p>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- SCROLL INDICATOR (visible after load)           -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="scrollIndicator" class="scroll-indicator hidden">
-    <span>Scroll to enter</span>
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- PRE-INTRO ATMOSPHERIC LAYER                             -->
+  <!--                                                         -->
+  <!-- State 1: Near-black atmosphere, grain, subtle motes,   -->
+  <!-- sparse logo, minimal CTA. Loaded AFTER preloader.      -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="introLayer" aria-label="The Manor — atmospheric entry screen">
+
+    <!-- Film grain canvas — JS renders low-res noise, CSS stretches it -->
+    <canvas id="grainCanvas" aria-hidden="true"></canvas>
+
+    <!-- Vignette overlay — darkens edges to focus attention on center -->
+    <div class="intro-vignette" aria-hidden="true"></div>
+
+    <!-- Ambient radial motes — barely visible amber drifts, pure CSS -->
+    <div class="intro-motes" aria-hidden="true">
+      <div class="mote mote-1"></div>
+      <div class="mote mote-2"></div>
+      <div class="mote mote-3"></div>
+    </div>
+
+    <!-- Centered identity block -->
+    <div class="intro-content">
+      <p class="intro-eyebrow">Blackwood Studios</p>
+
+      <div class="intro-title-block">
+        <!-- Page's only h1 lives here — intro logo IS the page heading -->
+        <h1 class="intro-logo">The Manor</h1>
+        <!-- Decorative rule that grows outward on entry, collapses on click -->
+        <div class="intro-rule" aria-hidden="true"></div>
+      </div>
+
+      <!--
+        CTA deliberately avoids any action language.
+        The restraint IS the design: curiosity over clarity.
+      -->
+      <button id="introCta" class="intro-cta" type="button"
+        aria-label="Enter The Manor experience — begin the cinematic sequence">
+        <span class="cta-inner">Enter if you dare</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- CINEMATIC PLAYBACK LAYER                                -->
+  <!--                                                         -->
+  <!-- State 3: 163 WebP frames played deterministically via  -->
+  <!-- GSAP ticker. Canvas + black overlay for fade in/out.   -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="cinematicLayer" aria-hidden="true">
+    <!-- The frame canvas — receives ImageBitmap draws each tick -->
+    <canvas id="frameCanvas"></canvas>
+    <!-- Full-black overlay: starts opaque, fades away on play, returns at end -->
+    <div id="cinematicOverlay" aria-hidden="true"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SCROLL INDICATOR (appears after website state begins)   -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="scrollIndicator" class="scroll-indicator hidden" aria-hidden="true">
+    <span>Scroll to explore</span>
     <div class="scroll-arrow">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 5v14M5 12l7 7 7-7" />
@@ -49,10 +113,10 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- AUDIO TOGGLE                                    -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <button id="audioToggle" class="audio-toggle hidden" aria-label="Toggle background music">
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- AUDIO TOGGLE (appears once cinematic begins)            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <button id="audioToggle" class="audio-toggle hidden" aria-label="Toggle background music" type="button">
     <svg class="audio-icon audio-on" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -67,30 +131,25 @@
     </svg>
   </button>
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- CANVAS ANIMATION SECTION                        -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <section id="animationSection">
-    <canvas id="frameCanvas"></canvas>
-    <!-- Fade-to-black overlay driven by GSAP -->
-    <div id="fadeOverlay" class="fade-overlay"></div>
-  </section>
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- WEBSITE CONTENT (State 4 — post-cinematic)             -->
+  <!--                                                         -->
+  <!-- No animation section. The cinematic IS the intro.      -->
+  <!-- Normal scroll-based GSAP reveals from here onward.     -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <main id="contentSections" aria-hidden="true">
 
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- CONTENT SECTIONS (revealed after animation)     -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <main id="contentSections">
-
-    <!-- Hero reveal -->
+    <!-- Hero -->
     <section class="content-section hero-section" id="heroSection">
       <div class="section-inner">
         <p class="section-eyebrow">A Dark Tale Awaits</p>
-        <h1 class="hero-title">
+        <!-- h2 here — h1 lives in the intro layer -->
+        <h2 class="hero-title">
           <span class="line">Welcome to</span>
           <span class="line accent">The Manor</span>
-        </h1>
-        <p class="hero-subtitle">An immersive horror experience where every shadow hides a secret and every door leads
-          deeper into madness.</p>
+        </h2>
+        <p class="hero-subtitle">An immersive horror experience where every shadow hides a secret
+          and every door leads deeper into madness.</p>
         <div class="hero-cta">
           <a href="#gameplaySection" class="btn btn-primary" id="ctaPlay">Begin Your Descent</a>
           <a href="#storySection" class="btn btn-ghost" id="ctaStory">Read the Lore</a>
@@ -99,35 +158,35 @@
     </section>
 
     <!-- Divider -->
-    <div class="section-divider">
+    <div class="section-divider" aria-hidden="true">
       <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
         <path d="M0,30 Q300,0 600,30 T1200,30" fill="none" stroke="rgba(180,140,100,0.3)" stroke-width="1" />
       </svg>
     </div>
 
-    <!-- Story Section -->
+    <!-- Story -->
     <section class="content-section" id="storySection">
       <div class="section-inner two-col">
         <div class="col text-col">
           <p class="section-eyebrow">The Story</p>
           <h2 class="section-title">Blackwood Manor, 1887</h2>
           <p class="section-text">
-            Lord Alistair Blackwood vanished on All Hallows' Eve, leaving behind only a locked journal and the faint
-            smell of sulfur.
-            The servants fled. The village sealed the road. Decades of silence followed — until the lights returned to
-            the windows,
-            flickering in patterns that no one could explain.
+            Lord Alistair Blackwood vanished on All Hallows' Eve, leaving behind only a locked journal
+            and the faint smell of sulfur. The servants fled. The village sealed the road. Decades of
+            silence followed — until the lights returned to the windows, flickering in patterns that
+            no one could explain.
           </p>
           <p class="section-text">
-            You are an investigator drawn to the inexplicable. Armed with little more than a lantern and your wits,
-            you must uncover the truth buried within the manor's crumbling walls.
+            You are an investigator drawn to the inexplicable. Armed with little more than a lantern
+            and your wits, you must uncover the truth buried within the manor's crumbling walls.
           </p>
         </div>
         <div class="col visual-col">
           <div class="lore-card" id="loreCard">
             <div class="lore-card-inner">
               <div class="lore-icon">📜</div>
-              <blockquote>"Do not open the third door on the east wing. What resides there has no name."</blockquote>
+              <blockquote>"Do not open the third door on the east wing.
+                What resides there has no name."</blockquote>
               <cite>— Excerpt from the Blackwood Journal</cite>
             </div>
           </div>
@@ -135,7 +194,7 @@
       </div>
     </section>
 
-    <!-- Gameplay Features -->
+    <!-- Gameplay -->
     <section class="content-section dark-section" id="gameplaySection">
       <div class="section-inner">
         <p class="section-eyebrow">Gameplay</p>
@@ -144,31 +203,32 @@
           <div class="feature-card" id="featureExplore">
             <div class="feature-icon">🔦</div>
             <h3>Explore</h3>
-            <p>Navigate 40+ hand-crafted rooms, each hiding clues, traps, and terrors unique to the Blackwood legacy.
-            </p>
+            <p>Navigate 40+ hand-crafted rooms, each hiding clues, traps, and terrors unique
+              to the Blackwood legacy.</p>
           </div>
           <div class="feature-card" id="featureSolve">
             <div class="feature-icon">🧩</div>
             <h3>Solve</h3>
-            <p>Decipher cryptic puzzles rooted in Victorian occultism. Every riddle brings you closer — or seals your
-              fate.</p>
+            <p>Decipher cryptic puzzles rooted in Victorian occultism. Every riddle brings you
+              closer — or seals your fate.</p>
           </div>
           <div class="feature-card" id="featureSurvive">
             <div class="feature-icon">💀</div>
             <h3>Survive</h3>
-            <p>Something stalks the hallways. Manage your sanity, conserve your light, and never look behind you.</p>
+            <p>Something stalks the hallways. Manage your sanity, conserve your light,
+              and never look behind you.</p>
           </div>
           <div class="feature-card" id="featureDecide">
             <div class="feature-icon">⚖️</div>
             <h3>Decide</h3>
-            <p>Branching narratives lead to seven distinct endings. Your choices echo through the manor's dark history.
-            </p>
+            <p>Branching narratives lead to seven distinct endings. Your choices echo through
+              the manor's dark history.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Stats / Specs -->
+    <!-- Stats -->
     <section class="content-section" id="statsSection">
       <div class="section-inner">
         <p class="section-eyebrow">By the Numbers</p>
@@ -187,19 +247,20 @@
             <span class="stat-label">Hours of Gameplay</span>
           </div>
           <div class="stat" id="stat4">
-            <span class="stat-number" data-target="204">0</span>
+            <span class="stat-number" data-target="163">0</span>
             <span class="stat-label">Cinematic Frames</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CTA / Footer -->
+    <!-- Footer / CTA -->
     <footer class="content-section footer-section" id="footerSection">
       <div class="section-inner center">
         <p class="section-eyebrow">Coming Soon</p>
         <h2 class="section-title">Dare to Enter?</h2>
-        <p class="section-text footer-text">Wishlist now and be the first to step inside when the doors open.</p>
+        <p class="section-text footer-text">Wishlist now and be the first to step inside when
+          the doors open.</p>
         <a href="#" class="btn btn-primary btn-lg" id="ctaWishlist">Add to Wishlist</a>
         <p class="copyright">© 2026 Blackwood Studios. All rights reserved.</p>
       </div>
@@ -211,6 +272,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="app.js"></script>
+
 </body>
 
 </html>

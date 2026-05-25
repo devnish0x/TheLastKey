@@ -1,10 +1,10 @@
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    DESIGN TOKENS
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 :root {
-  /* Palette — dark gothic with warm amber accents */
   --bg-black:       #000000;
   --bg-deep:        #0a0a0c;
+  --bg-intro:       #050506;   /* slightly warmer than pure black */
   --bg-section:     #0e0e12;
   --bg-card:        #141419;
   --bg-card-hover:  #1a1a22;
@@ -19,12 +19,10 @@
 
   --danger:         #8b3a3a;
 
-  /* Typography */
   --font-display:   'Cinzel', serif;
   --font-body:      'Cormorant Garamond', serif;
   --font-ui:        'Inter', sans-serif;
 
-  /* Spacing */
   --space-xs:  0.5rem;
   --space-sm:  1rem;
   --space-md:  2rem;
@@ -32,19 +30,17 @@
   --space-xl:  6rem;
   --space-xxl: 10rem;
 
-  /* Radius */
   --radius-sm:  6px;
   --radius-md:  12px;
   --radius-lg:  20px;
 
-  /* Transitions */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    RESET & BASE
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -52,7 +48,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth intentionally ABSENT.
+     GSAP ScrollTrigger manages all scroll physics — CSS smooth-scroll
+     would fight it and cause double-easing jank. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -72,9 +70,29 @@ a {
   text-decoration: none;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
+   SKIP LINK (accessibility — first focusable element)
+   ═══════════════════════════════════════════════════════════ */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: 1rem;
+  background: var(--accent);
+  color: #000;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  z-index: 99999;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
    PRELOADER
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 #preloader {
   position: fixed;
   inset: 0;
@@ -83,7 +101,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.8s var(--ease-smooth), visibility 0.8s;
+  transition: opacity 0.9s var(--ease-smooth), visibility 0.9s;
 }
 #preloader.done {
   opacity: 0;
@@ -124,10 +142,10 @@ a {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 28px;
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulseEye 2s ease-in-out infinite;
 }
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+@keyframes pulseEye {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
   50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.1); }
 }
 
@@ -143,39 +161,342 @@ a {
 
 .preloader-bar-track {
   width: 100%;
-  height: 3px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 3px;
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
   overflow: hidden;
 }
 .preloader-bar-fill {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, var(--accent), var(--accent-light));
-  border-radius: 3px;
-  transition: width 0.15s linear;
+  border-radius: 2px;
+  transition: width 0.12s linear;
 }
 
 .preloader-percent {
   font-family: var(--font-ui);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--accent);
   margin-top: var(--space-xs);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .preloader-hint {
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
-  margin-top: var(--space-xs);
+  margin-top: 0.3rem;
   letter-spacing: 0.04em;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
+   PRE-INTRO ATMOSPHERIC LAYER  (#introLayer)
+
+   Fixed fullscreen, z-index 800. Stays in DOM after preintro;
+   becomes invisible (opacity 0) once cinematic begins.
+   All child text starts at opacity:0 — GSAP animates them in.
+   ═══════════════════════════════════════════════════════════ */
+#introLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  /*
+   * Transparent background — frame 0 on the canvas below (z-index 400)
+   * shows through as the atmospheric backdrop. The darkness comes from
+   * the frame image itself, plus the vignette overlay on top.
+   */
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── Film Grain Canvas ──────────────────────────────────── */
+/*
+ * JS renders noise on a tiny canvas (25% resolution).
+ * CSS stretches it to fill the viewport.
+ * mix-blend-mode: overlay on dark bg = subtle grain without washing out color.
+ */
+#grainCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  /* opacity set by JS via CONFIG.grainOpacity */
+  z-index: 1;
+}
+
+/* ── Vignette ───────────────────────────────────────────── */
+/*
+ * Darkens edges to pull the eye inward toward the centered content.
+ * No JS — pure CSS pseudo-element.
+ */
+.intro-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 35%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Ambient Motes ──────────────────────────────────────── */
+/*
+ * 3 barely-visible radial gradients that drift slowly.
+ * Pure CSS — no JS RAF cost. Extremely subtle: opacity ~3–5%.
+ */
+.intro-motes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mote-1 {
+  width: 600px;
+  height: 600px;
+  top: -5%;
+  left: -12%;
+  background: radial-gradient(
+    circle at center,
+    rgba(180, 140, 100, 0.038) 0%,
+    transparent 70%
+  );
+  animation: moteDrift1 26s ease-in-out infinite alternate;
+}
+
+.mote-2 {
+  width: 450px;
+  height: 450px;
+  top: 45%;
+  right: -8%;
+  background: radial-gradient(
+    circle at center,
+    rgba(140, 100, 80, 0.028) 0%,
+    transparent 70%
+  );
+  animation: moteDrift2 32s ease-in-out infinite alternate;
+  animation-delay: -10s;
+}
+
+.mote-3 {
+  width: 350px;
+  height: 350px;
+  bottom: 10%;
+  left: 35%;
+  background: radial-gradient(
+    circle at center,
+    rgba(180, 140, 100, 0.022) 0%,
+    transparent 70%
+  );
+  animation: moteDrift3 28s ease-in-out infinite alternate;
+  animation-delay: -18s;
+}
+
+@keyframes moteDrift1 {
+  0%   { transform: translate(0,    0)    scale(1); }
+  30%  { transform: translate(40px, -35px) scale(1.07); }
+  65%  { transform: translate(-20px, 45px) scale(0.93); }
+  100% { transform: translate(25px,  20px) scale(1.04); }
+}
+@keyframes moteDrift2 {
+  0%   { transform: translate(0,    0)     scale(1); }
+  40%  { transform: translate(-40px, 30px) scale(1.05); }
+  75%  { transform: translate(30px, -25px) scale(0.96); }
+  100% { transform: translate(-15px,-30px) scale(1.02); }
+}
+@keyframes moteDrift3 {
+  0%   { transform: translate(0, 0)       scale(1); }
+  50%  { transform: translate(30px, 40px) scale(0.94); }
+  100% { transform: translate(-25px,-20px) scale(1.06); }
+}
+
+/* ── Intro Centered Content ─────────────────────────────── */
+.intro-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Small uppercase studio credit */
+.intro-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.55em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.6rem;
+  opacity: 0;  /* GSAP animates to 0.35 */
+}
+
+.intro-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The page's h1 — large, cinematic, tracking */
+.intro-logo {
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 9vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1;
+  opacity: 0;  /* GSAP animates to 0.88 */
+}
+
+/*
+ * Decorative rule: grows from center outward on intro entrance,
+ * collapses on CTA click. GSAP animates scaleX 0→1→0.
+ */
+.intro-rule {
+  width: 140px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(180, 140, 100, 0.5) 30%,
+    var(--accent-light) 50%,
+    rgba(180, 140, 100, 0.5) 70%,
+    transparent
+  );
+  margin: 1.6rem auto 2.4rem;
+  transform: scaleX(0);
+  transform-origin: center center;
+  opacity: 0;  /* GSAP animates to 1 */
+}
+
+/*
+ * CTA — deliberately anti-commercial.
+ * No border. No background. No neon.
+ * Italic serif text. Barely visible.
+ * Hover: text brightens + thin underline grows.
+ * This is a literary, psychological invitation.
+ */
+.intro-cta {
+  background: none;
+  /* Subtle amber border — makes the button clearly read as interactive */
+  border: 1px solid rgba(180, 140, 100, 0.35);
+  border-radius: 3px;
+  cursor: crosshair;
+  /* More padding so border frames the text properly */
+  padding: 0.85rem 2.2rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(0.92rem, 1.7vw, 1.1rem);
+  /* Brighter default — clearly readable on the frame background */
+  color: rgba(232, 228, 223, 0.82);
+  letter-spacing: 0.14em;
+  position: relative;
+  opacity: 0;   /* GSAP animates to 1 */
+  transition: color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.cta-inner {
+  position: relative;
+  display: inline-block;
+}
+
+/* Amber underline that grows from center on hover */
+.cta-inner::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 1px;
+  background: var(--accent-light);
+  transition: width 0.6s var(--ease-out);
+}
+
+.intro-cta:hover {
+  color: rgba(232, 228, 223, 0.98);
+  border-color: rgba(180, 140, 100, 0.7);
+  /* Soft amber glow — cinematic highlight, not neon */
+  box-shadow: 0 0 22px rgba(180, 140, 100, 0.18), inset 0 0 18px rgba(180, 140, 100, 0.06);
+}
+.intro-cta:hover .cta-inner::after {
+  width: 100%;
+}
+.intro-cta:focus-visible {
+  outline: 1px solid rgba(180, 140, 100, 0.6);
+  outline-offset: 8px;
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CINEMATIC PLAYBACK LAYER  (#cinematicLayer)
+
+   Fixed fullscreen, z-index 400. Contains the frame canvas
+   and a full-black overlay for fade-in / fade-out control.
+   Both start invisible; GSAP reveals them.
+   ═══════════════════════════════════════════════════════════ */
+#cinematicLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #000;
+  /*
+   * opacity: 1 — always visible so frame 0 acts as the intro background.
+   * GSAP fades this out after the cinematic ends.
+   */
+  opacity: 1;
+  pointer-events: none;
+}
+
+/*
+ * Frame canvas — renders ImageBitmaps each GSAP ticker tick.
+ * will-change: transform → own GPU compositing layer → zero repaint
+ * cost from the overlay or other elements changing on top of it.
+ */
+#frameCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+/*
+ * Full-black overlay for cinematic fade in/out.
+ * Starts at opacity:1 (fully opaque = frames hidden).
+ * GSAP fades to 0 (frames visible) then back to 1 at end.
+ */
+#cinematicOverlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 10;
+  pointer-events: none;
+  /* opacity managed entirely by GSAP */
+}
+
+/* ═══════════════════════════════════════════════════════════
    SCROLL INDICATOR
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .scroll-indicator {
   position: fixed;
   bottom: 2.5rem;
@@ -184,9 +505,9 @@ a {
   z-index: 100;
   text-align: center;
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 400;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
   transition: opacity 0.5s var(--ease-smooth);
@@ -201,26 +522,27 @@ a {
 }
 .scroll-arrow svg {
   stroke: var(--accent);
-  opacity: 0.7;
+  opacity: 0.6;
+  margin: 0 auto;
 }
 @keyframes bobArrow {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(6px); }
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    AUDIO TOGGLE
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .audio-toggle {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  z-index: 200;
+  z-index: 900;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(180,140,100,0.25);
-  background: rgba(10,10,12,0.7);
+  border: 1px solid rgba(180,140,100,0.2);
+  background: rgba(5,5,6,0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
@@ -232,7 +554,7 @@ a {
 }
 .audio-toggle:hover {
   border-color: var(--accent);
-  background: rgba(20,20,25,0.85);
+  background: rgba(18,18,22,0.9);
   box-shadow: 0 0 20px var(--accent-glow);
   transform: scale(1.08);
 }
@@ -245,58 +567,27 @@ a {
   stroke: var(--accent-light);
   transition: opacity 0.3s;
 }
-/* Default: music is off, show the muted icon */
 .audio-toggle .audio-on  { display: none; }
 .audio-toggle .audio-off { display: block; }
-
-/* When playing: show speaker, hide muted X */
 .audio-toggle.playing .audio-on  { display: block; }
 .audio-toggle.playing .audio-off { display: none; }
 
 @keyframes audioPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(180,140,100,0); }
-  50%      { box-shadow: 0 0 0 8px rgba(180,140,100,0.15); }
+  50%      { box-shadow: 0 0 0 8px rgba(180,140,100,0.12); }
 }
 .audio-toggle.playing {
   animation: audioPulse 3s ease-in-out infinite;
 }
 
-/* ═══════════════════════════════════════════════
-   ANIMATION SECTION (Canvas)
-   ═══════════════════════════════════════════════ */
-#animationSection {
-  position: relative;
-  width: 100%;
-  /* Height is set dynamically by JS — large enough for scroll scrubbing */
-  height: 500vh;
-}
-
-#frameCanvas {
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  object-fit: cover;
-  background: var(--bg-black);
-}
-
-.fade-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-black);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 50;
-}
-
-/* ═══════════════════════════════════════════════
-   CONTENT SECTIONS
-   ═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   CONTENT SECTIONS  (State 4 — post-cinematic website)
+   ═══════════════════════════════════════════════════════════ */
 #contentSections {
   position: relative;
   z-index: 60;
   background: var(--bg-deep);
+  opacity: 0;  /* GSAP fades to 1 when website state begins */
 }
 
 .content-section {
@@ -312,9 +603,7 @@ a {
   width: 100%;
   margin: 0 auto;
 }
-.section-inner.center {
-  text-align: center;
-}
+.section-inner.center { text-align: center; }
 
 /* Eyebrow */
 .section-eyebrow {
@@ -346,9 +635,9 @@ a {
   max-width: 640px;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    HERO SECTION
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .hero-section {
   min-height: 100vh;
   text-align: center;
@@ -363,6 +652,7 @@ a {
   align-items: center;
 }
 
+/* hero-title is now an h2 (h1 is intro-logo) — styles unchanged */
 .hero-title {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 7vw, 5rem);
@@ -371,9 +661,7 @@ a {
   letter-spacing: 0.02em;
   margin-bottom: var(--space-md);
 }
-.hero-title .line {
-  display: block;
-}
+.hero-title .line  { display: block; }
 .hero-title .accent {
   background: linear-gradient(135deg, var(--accent-light), var(--accent), #8b6b42);
   -webkit-background-clip: text;
@@ -388,7 +676,6 @@ a {
   margin-bottom: var(--space-lg);
 }
 
-/* CTAs */
 .hero-cta {
   display: flex;
   gap: var(--space-sm);
@@ -396,6 +683,7 @@ a {
   justify-content: center;
 }
 
+/* Buttons */
 .btn {
   font-family: var(--font-ui);
   font-size: 0.85rem;
@@ -432,23 +720,20 @@ a {
   font-size: 0.95rem;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    SECTION DIVIDER
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .section-divider {
   height: 60px;
   display: flex;
   align-items: center;
   overflow: hidden;
 }
-.section-divider svg {
-  width: 100%;
-  height: 60px;
-}
+.section-divider svg { width: 100%; height: 60px; }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    TWO-COLUMN LAYOUT
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -471,10 +756,8 @@ a {
 .lore-card::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
   background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.6s;
@@ -482,12 +765,7 @@ a {
 .lore-card:hover::before { opacity: 1; }
 
 .lore-card-inner { position: relative; z-index: 1; }
-
-.lore-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--space-sm);
-}
-
+.lore-icon { font-size: 2.5rem; margin-bottom: var(--space-sm); }
 .lore-card blockquote {
   font-family: var(--font-body);
   font-size: 1.15rem;
@@ -504,9 +782,9 @@ a {
   letter-spacing: 0.06em;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    FEATURES GRID
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .dark-section {
   background:
     radial-gradient(ellipse at 30% 80%, rgba(139,58,58,0.06) 0%, transparent 50%),
@@ -545,12 +823,7 @@ a {
 }
 .feature-card:hover::after { opacity: 1; }
 
-.feature-icon {
-  font-size: 2rem;
-  margin-bottom: var(--space-sm);
-  position: relative;
-  z-index: 1;
-}
+.feature-icon { font-size: 2rem; margin-bottom: var(--space-sm); position: relative; z-index: 1; }
 .feature-card h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
@@ -567,9 +840,9 @@ a {
   z-index: 1;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    STATS ROW
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -577,11 +850,7 @@ a {
   margin-top: var(--space-md);
   text-align: center;
 }
-
-.stat {
-  padding: var(--space-md);
-}
-
+.stat { padding: var(--space-md); }
 .stat-number {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 5vw, 3.5rem);
@@ -591,7 +860,6 @@ a {
   line-height: 1;
   margin-bottom: 0.5rem;
 }
-
 .stat-label {
   font-family: var(--font-ui);
   font-size: 0.75rem;
@@ -601,9 +869,9 @@ a {
   color: var(--text-muted);
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    FOOTER
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
 .footer-section {
   background:
     radial-gradient(ellipse at 50% 100%, rgba(180,140,100,0.05) 0%, transparent 50%),
@@ -622,9 +890,10 @@ a {
   letter-spacing: 0.08em;
 }
 
-/* ═══════════════════════════════════════════════
-   GSAP REVEAL ANIMATIONS (initial states)
-   ═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   GSAP REVEAL — initial hidden states for content sections
+   GSAP animates these to opacity:1, y:0 on scroll.
+   ═══════════════════════════════════════════════════════════ */
 .content-section .section-eyebrow,
 .content-section .section-title,
 .content-section .section-text,
@@ -639,9 +908,18 @@ a {
   transform: translateY(40px);
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    RESPONSIVE
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .intro-logo {
+    font-size: clamp(2.8rem, 12vw, 4rem);
+  }
+  .intro-eyebrow {
+    letter-spacing: 0.4em;
+  }
+}
+
 @media (max-width: 480px) {
   .content-section {
     padding: var(--space-lg) var(--space-sm);
@@ -649,4 +927,21 @@ a {
   .hero-title {
     font-size: clamp(2rem, 10vw, 3rem);
   }
+  .intro-cta {
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REDUCED MOTION
+   When prefers-reduced-motion is set, all CSS animations stop.
+   JS also detects this and skips the cinematic entirely.
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .mote-1, .mote-2, .mote-3 { animation: none; }
+  .scroll-arrow { animation: none; }
+  .preloader-ring { animation: none; }
+  .preloader-eye  { animation: none; }
+  .audio-toggle.playing { animation: none; }
 }
