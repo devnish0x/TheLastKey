@@ -74,7 +74,7 @@
   const AUDIO = {
     bgMusicPath:     'music/backgroud.mp3',
     jumpscarePath:   'music/jumpscare.mp3',
-    buttonClickPath: 'music/buttonclick.wav',
+    buttonClickPath: 'music/buttonclick1.mp3',
     bgVolume:        0.35,
     bgFadeMs:        2800,              // slow fade-in for atmospheric buildup
     jumpscareVolume: 0.85,
@@ -109,7 +109,6 @@
     frameCanvas:      document.getElementById('frameCanvas'),
     cinematicOverlay: document.getElementById('cinematicOverlay'),
 
-    scrollIndicator:  document.getElementById('scrollIndicator'),
     audioToggle:      document.getElementById('audioToggle'),
     contentSections:  document.getElementById('contentSections'),
   };
@@ -593,6 +592,9 @@
     // Play click sound
     AudioEngine.playClick();
 
+    // Start background music early, right after button click
+    AudioEngine.startBgMusic();
+
     // Lock scroll immediately
     document.body.style.overflow = 'hidden';
 
@@ -656,9 +658,6 @@
       dom.audioToggle.classList.remove('hidden');
       dom.audioToggle.classList.add('playing');
     }, 400);
-
-    // Start background music (smooth fade-in over 2.8s)
-    AudioEngine.startBgMusic();
 
     /*
      * Cinematic GSAP timeline.
@@ -740,15 +739,6 @@
       onComplete: () => {
         // Restore scroll after text settles
         document.body.style.overflow = '';
-
-        // Show scroll indicator briefly
-        setTimeout(() => {
-          dom.scrollIndicator.classList.remove('hidden');
-          // Auto-hide after first scroll
-          window.addEventListener('scroll', () => {
-            dom.scrollIndicator.classList.add('hidden');
-          }, { once: true, passive: true });
-        }, 300);
       }
     });
 
