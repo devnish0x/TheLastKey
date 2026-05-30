@@ -45,25 +45,25 @@
      ───────────────────────────────────────────────────────────────── */
   const CONFIG = {
     /* Frame sequence */
-    totalFrames:   163,
-    framePath:     'framesWebp/frame_',  // maps to framesWebp/frame_0001.webp
-    frameExt:      '.webp',
+    totalFrames: 163,
+    framePath: 'framesWebp/frame_',  // maps to framesWebp/frame_0001.webp
+    frameExt: '.webp',
     parallelLoads: 8,                    // simultaneous fetch/decode workers
 
     /* Cinematic timing (seconds) */
     cinematicDuration: 6.0,             // 163 frames / 6s ≈ 27fps — faster, still cinematic
-    fadeInDuration:    1.3,             // kept (unused now — no fade-in tween)
-    fadeOutStart:      4.8,             // fade-to-black at 80% through the 6s run
-    fadeOutDuration:   1.0,             // slightly tighter fade
-    blackHold:         0.4,             // brief hold before website
+    fadeInDuration: 1.3,             // kept (unused now — no fade-in tween)
+    fadeOutStart: 4.8,             // fade-to-black at 80% through the 6s run
+    fadeOutDuration: 1.0,             // slightly tighter fade
+    blackHold: 0.4,             // brief hold before website
 
     /* Camera zoom during cinematic — slow push-in for depth */
     zoomStart: 1.0,
-    zoomEnd:   1.28,
+    zoomEnd: 1.28,
 
     /* Grain canvas */
-    grainScale:   0.25,    // render at 25% resolution → 16× fewer pixels
-    grainFPS:     12,      // renders/sec — grain looks authentic at low fps
+    grainScale: 0.25,    // render at 25% resolution → 16× fewer pixels
+    grainFPS: 12,      // renders/sec — grain looks authentic at low fps
     grainOpacity: 0.055,   // very subtle; blend mode adds perceived intensity
     grainMobileFPS: 8,     // drop to 8fps on mobile for battery/perf
   };
@@ -72,14 +72,14 @@
      AUDIO CONFIGURATION
      ───────────────────────────────────────────────────────────────── */
   const AUDIO = {
-    bgMusicPath:     'music/backgroud.mp3',
-    jumpscarePath:   'music/jumpscare.mp3',
+    bgMusicPath: 'music/backgroud.mp3',
+    jumpscarePath: 'music/jumpscare.mp3',
     buttonClickPath: 'music/buttonclick1.mp3',
-    bgVolume:        0.35,
-    bgFadeMs:        2800,              // slow fade-in for atmospheric buildup
+    bgVolume: 0.35,
+    bgFadeMs: 2800,              // slow fade-in for atmospheric buildup
     jumpscareVolume: 0.85,
-    jumpscareFrame:  120,               // frame index at which jumpscare fires
-    jumpscareTol:    4,                 // ±4-frame window to catch the beat
+    jumpscareFrame: 120,               // frame index at which jumpscare fires
+    jumpscareTol: 4,                 // ±4-frame window to catch the beat
   };
 
   /* ─────────────────────────────────────────────────────────────────
@@ -93,24 +93,24 @@
      DOM REFS — cached once; never queried again in hot paths
      ───────────────────────────────────────────────────────────────── */
   const dom = {
-    preloader:        document.getElementById('preloader'),
-    preloaderBar:     document.getElementById('preloaderBar'),
+    preloader: document.getElementById('preloader'),
+    preloaderBar: document.getElementById('preloaderBar'),
     preloaderPercent: document.getElementById('preloaderPercent'),
-    preloaderProg:    document.getElementById('preloaderProgress'),
+    preloaderProg: document.getElementById('preloaderProgress'),
 
-    introLayer:       document.getElementById('introLayer'),
-    introCta:         document.getElementById('introCta'),
-    introLogo:        document.querySelector('.intro-logo'),
-    introEyebrow:     document.querySelector('.intro-eyebrow'),
-    introRule:        document.querySelector('.intro-rule'),
-    grainCanvas:      document.getElementById('grainCanvas'),
+    introLayer: document.getElementById('introLayer'),
+    introCta: document.getElementById('introCta'),
+    introLogo: document.querySelector('.intro-logo'),
+    introEyebrow: document.querySelector('.intro-eyebrow'),
+    introRule: document.querySelector('.intro-rule'),
+    grainCanvas: document.getElementById('grainCanvas'),
 
-    cinematicLayer:   document.getElementById('cinematicLayer'),
-    frameCanvas:      document.getElementById('frameCanvas'),
+    cinematicLayer: document.getElementById('cinematicLayer'),
+    frameCanvas: document.getElementById('frameCanvas'),
     cinematicOverlay: document.getElementById('cinematicOverlay'),
 
-    audioToggle:      document.getElementById('audioToggle'),
-    contentSections:  document.getElementById('contentSections'),
+    audioToggle: document.getElementById('audioToggle'),
+    contentSections: document.getElementById('contentSections'),
   };
 
   /* ─────────────────────────────────────────────────────────────────
@@ -129,8 +129,8 @@
      CANVAS STATE (frame renderer)
      ───────────────────────────────────────────────────────────────── */
   let frameCtx = null;
-  let canvasW  = 0;
-  let canvasH  = 0;
+  let canvasW = 0;
+  let canvasH = 0;
 
   /* ═══════════════════════════════════════════════════════════════════
      UTILITY
@@ -168,9 +168,9 @@
   function preloadAllFrames() {
     return new Promise((resolve) => {
       let decoded = 0;
-      let queued  = 0;
+      let queued = 0;
       const total = CONFIG.totalFrames;
-      const par   = IS_MOBILE
+      const par = IS_MOBILE
         ? Math.min(4, CONFIG.parallelLoads)
         : CONFIG.parallelLoads;
 
@@ -196,7 +196,7 @@
           })
           .then((blob) =>
             createImageBitmap(blob, {
-              premultiplyAlpha:     'none', // opaque frames: skip premultiplication
+              premultiplyAlpha: 'none', // opaque frames: skip premultiplication
               colorSpaceConversion: 'none', // skip color management = faster
             })
           )
@@ -257,9 +257,9 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvasW = window.innerWidth;
     canvasH = window.innerHeight;
-    dom.frameCanvas.width  = Math.round(canvasW * dpr);
+    dom.frameCanvas.width = Math.round(canvasW * dpr);
     dom.frameCanvas.height = Math.round(canvasH * dpr);
-    dom.frameCanvas.style.width  = canvasW + 'px';
+    dom.frameCanvas.style.width = canvasW + 'px';
     dom.frameCanvas.style.height = canvasH + 'px';
     frameCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
@@ -276,11 +276,11 @@
   function drawFrame(floatIndex, zoom) {
     if (!frameCtx) return;
 
-    const maxIdx  = CONFIG.totalFrames - 1;
+    const maxIdx = CONFIG.totalFrames - 1;
     const clamped = Math.max(0, Math.min(maxIdx, floatIndex));
-    const frameA  = Math.floor(clamped);
-    const frameB  = Math.min(frameA + 1, maxIdx);
-    const frac    = clamped - frameA;
+    const frameA = Math.floor(clamped);
+    const frameB = Math.min(frameA + 1, maxIdx);
+    const frac = clamped - frameA;
 
     // Black fill (required since alpha:false skips transparent clear)
     frameCtx.fillStyle = '#000';
@@ -310,11 +310,11 @@
     frameCtx.scale(zoom, zoom);
     frameCtx.translate(-cx, -cy);
 
-    const imgR    = w / h;
+    const imgR = w / h;
     const canvasR = canvasW / canvasH;
     let dW, dH;
-    if (canvasR > imgR) { dW = canvasW;   dH = canvasW / imgR; }
-    else                { dH = canvasH;   dW = canvasH * imgR;  }
+    if (canvasR > imgR) { dW = canvasW; dH = canvasW / imgR; }
+    else { dH = canvasH; dW = canvasH * imgR; }
 
     const dx = (canvasW - dW) / 2;
     const dy = (canvasH - dH) / 2;
@@ -341,15 +341,15 @@
    * than a flat white-noise pattern.
    */
   const GrainEngine = (function () {
-    let rafId    = null;
+    let rafId = null;
     let lastTime = 0;
     let grainCtx = null;
     const targetFPS = IS_MOBILE ? CONFIG.grainMobileFPS : CONFIG.grainFPS;
-    const interval  = 1000 / targetFPS;
+    const interval = 1000 / targetFPS;
 
     function resize() {
       const c = dom.grainCanvas;
-      c.width  = Math.ceil(window.innerWidth  * CONFIG.grainScale);
+      c.width = Math.ceil(window.innerWidth * CONFIG.grainScale);
       c.height = Math.ceil(window.innerHeight * CONFIG.grainScale);
     }
 
@@ -361,11 +361,11 @@
       if (timestamp - lastTime < interval) return;
       lastTime = timestamp;
 
-      const c  = dom.grainCanvas;
-      const w  = c.width;
-      const h  = c.height;
+      const c = dom.grainCanvas;
+      const w = c.width;
+      const h = c.height;
       const id = grainCtx.createImageData(w, h);
-      const d  = id.data;
+      const d = id.data;
 
       /*
        * Each pixel: random luminance in range [0, 55].
@@ -375,10 +375,10 @@
        */
       for (let i = 0; i < d.length; i += 4) {
         const n = (Math.random() * 55) | 0;
-        d[i]   = n;     // R
-        d[i+1] = n;     // G
-        d[i+2] = n;     // B
-        d[i+3] = 28;    // A
+        d[i] = n;     // R
+        d[i + 1] = n;     // G
+        d[i + 2] = n;     // B
+        d[i + 3] = 28;    // A
       }
 
       grainCtx.putImageData(id, 0, 0);
@@ -393,7 +393,7 @@
       start() {
         if (rafId) return;
         lastTime = 0;
-        rafId    = requestAnimationFrame(render);
+        rafId = requestAnimationFrame(render);
       },
       stop() {
         if (rafId) cancelAnimationFrame(rafId);
@@ -408,15 +408,15 @@
      ═══════════════════════════════════════════════════════════════════ */
 
   const AudioEngine = (function () {
-    let bgMusic        = null;
+    let bgMusic = null;
     let jumpscareAudio = null;
-    let clickAudio     = null;
-    let isMuted        = false;
-    let bgStarted      = false;
+    let clickAudio = null;
+    let isMuted = false;
+    let bgStarted = false;
     let userInteracted = false;
 
     // Zone-based jumpscare state — prevents re-firing on the same crossing
-    let jsArmed  = true;
+    let jsArmed = true;
     let jsInZone = false;
 
     /**
@@ -425,8 +425,8 @@
      * and avoids audible stepping.
      */
     function fadeVolume(audio, target, durationMs) {
-      const start    = audio.volume;
-      const t0       = performance.now();
+      const start = audio.volume;
+      const t0 = performance.now();
       function tick(now) {
         const p = Math.min(1, (now - t0) / durationMs);
         audio.volume = Math.max(0, Math.min(1, start + (target - start) * p));
@@ -438,18 +438,18 @@
     return {
       init() {
         bgMusic = new Audio(AUDIO.bgMusicPath);
-        bgMusic.loop    = true;
-        bgMusic.volume  = 0;
+        bgMusic.loop = true;
+        bgMusic.volume = 0;
         bgMusic.preload = 'auto';
 
         jumpscareAudio = new Audio(AUDIO.jumpscarePath);
-        jumpscareAudio.loop    = false;
-        jumpscareAudio.volume  = AUDIO.jumpscareVolume;
+        jumpscareAudio.loop = false;
+        jumpscareAudio.volume = AUDIO.jumpscareVolume;
         jumpscareAudio.preload = 'auto';
 
         clickAudio = new Audio(AUDIO.buttonClickPath);
-        clickAudio.loop    = false;
-        clickAudio.volume  = 1.0;
+        clickAudio.loop = false;
+        clickAudio.volume = 1.0;
         clickAudio.preload = 'auto';
 
         // Bind interaction listeners for browsers that block autoplay
@@ -457,13 +457,13 @@
           if (userInteracted) return;
           userInteracted = true;
           this.startBgMusic();
-          document.removeEventListener('click',      onInteract);
+          document.removeEventListener('click', onInteract);
           document.removeEventListener('touchstart', onInteract);
-          document.removeEventListener('keydown',    onInteract);
+          document.removeEventListener('keydown', onInteract);
         };
-        document.addEventListener('click',      onInteract, { passive: true });
+        document.addEventListener('click', onInteract, { passive: true });
         document.addEventListener('touchstart', onInteract, { passive: true });
-        document.addEventListener('keydown',    onInteract, { passive: true });
+        document.addEventListener('keydown', onInteract, { passive: true });
       },
 
       startBgMusic() {
@@ -482,8 +482,8 @@
        * This handles forward/reverse/fast-scroll correctly.
        */
       checkJumpscareTrigger(currentFrame) {
-        const lo     = AUDIO.jumpscareFrame - AUDIO.jumpscareTol;
-        const hi     = AUDIO.jumpscareFrame + AUDIO.jumpscareTol;
+        const lo = AUDIO.jumpscareFrame - AUDIO.jumpscareTol;
+        const hi = AUDIO.jumpscareFrame + AUDIO.jumpscareTol;
         const inZone = currentFrame >= lo && currentFrame <= hi;
 
         if (inZone && !jsInZone) {
@@ -493,25 +493,25 @@
             // Hard stop before play — prevents stacking if seeking back
             jumpscareAudio.pause();
             jumpscareAudio.currentTime = 0;
-            jumpscareAudio.play().catch(() => {});
+            jumpscareAudio.play().catch(() => { });
           }
         } else if (!inZone && jsInZone) {
           jsInZone = false;
-          jsArmed  = true; // re-arm for next zone entry
+          jsArmed = true; // re-arm for next zone entry
         }
       },
 
       playClick() {
         if (clickAudio && !isMuted) {
           clickAudio.currentTime = 0;
-          clickAudio.play().catch(() => {});
+          clickAudio.play().catch(() => { });
         }
       },
 
       toggleMute() {
         isMuted = !isMuted;
         if (isMuted) {
-          if (bgMusic)        fadeVolume(bgMusic, 0, 400);
+          if (bgMusic) fadeVolume(bgMusic, 0, 400);
           setTimeout(() => { if (bgMusic) bgMusic.pause(); }, 450);
           if (jumpscareAudio) { jumpscareAudio.pause(); jumpscareAudio.currentTime = 0; }
           bgStarted = false;
@@ -519,12 +519,12 @@
           bgMusic.volume = 0;
           bgMusic.play()
             .then(() => { bgStarted = true; fadeVolume(bgMusic, AUDIO.bgVolume, AUDIO.bgFadeMs); })
-            .catch(() => {});
+            .catch(() => { });
         }
         return isMuted;
       },
 
-      get isMuted()  { return isMuted; },
+      get isMuted() { return isMuted; },
     };
   }());
 
@@ -552,9 +552,9 @@
     const tl = gsap.timeline();
     tl
       .to(dom.introEyebrow, { opacity: 0.35, duration: 1.8, ease: 'power2.out' }, 0.4)
-      .to(dom.introLogo,    { opacity: 0.88, duration: 2.2, ease: 'power2.out' }, 0.8)
-      .to(dom.introRule,    { opacity: 1, scaleX: 1, duration: 1.4, ease: 'power2.out' }, 1.5)
-      .to(dom.introCta,     { opacity: 1, duration: 1.8, ease: 'power2.out' }, 2.2);
+      .to(dom.introLogo, { opacity: 0.88, duration: 2.2, ease: 'power2.out' }, 0.8)
+      .to(dom.introRule, { opacity: 1, scaleX: 1, duration: 1.4, ease: 'power2.out' }, 1.5)
+      .to(dom.introCta, { opacity: 1, duration: 1.8, ease: 'power2.out' }, 2.2);
 
     // Bind CTA interactions
     bindCtaEvents();
@@ -568,7 +568,7 @@
       onCtaActivated();
     }
 
-    dom.introCta.addEventListener('click',      handleActivation);
+    dom.introCta.addEventListener('click', handleActivation);
     dom.introCta.addEventListener('touchstart', handleActivation, { passive: false });
     dom.introCta.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -611,16 +611,16 @@
     tl
       // Faint screen pulse — one brief brightness drop signals "something happened"
       .to(dom.introLayer, { opacity: 0.88, duration: 0.06, ease: 'none' })
-      .to(dom.introLayer, { opacity: 1,    duration: 0.10, ease: 'none' })
+      .to(dom.introLayer, { opacity: 1, duration: 0.10, ease: 'none' })
 
       // CTA text dissolves first — the invitation is gone
-      .to(dom.introCta,     { opacity: 0, y: -10, duration: 0.5, ease: 'power2.in' }, 0.08)
+      .to(dom.introCta, { opacity: 0, y: -10, duration: 0.5, ease: 'power2.in' }, 0.08)
 
       // Rule collapses inward
-      .to(dom.introRule,    { opacity: 0, scaleX: 0, duration: 0.4, ease: 'power2.in' }, 0.15)
+      .to(dom.introRule, { opacity: 0, scaleX: 0, duration: 0.4, ease: 'power2.in' }, 0.15)
 
       // Logo fades slowly — manor name lingers before darkness
-      .to(dom.introLogo,    { opacity: 0, duration: 0.9, ease: 'power2.in' }, 0.25)
+      .to(dom.introLogo, { opacity: 0, duration: 0.9, ease: 'power2.in' }, 0.25)
       .to(dom.introEyebrow, { opacity: 0, duration: 0.7, ease: 'power2.in' }, 0.30)
 
       // Hold on pure black — anticipation beat
@@ -642,6 +642,10 @@
   function enterCinematic() {
     appState = 'cinematic';
     dbg('→ cinematic');
+
+    // Disable intro layer interactions and hide it cleanly
+    dom.introLayer.style.pointerEvents = 'none';
+    dom.introLayer.style.display = 'none';
 
     // Stop grain (intro state over; save CPU for frame rendering)
     GrainEngine.stop();
@@ -672,7 +676,7 @@
      */
     const playhead = {
       frame: 0,
-      zoom:  CONFIG.zoomStart,
+      zoom: CONFIG.zoomStart,
     };
 
     const dur = CONFIG.cinematicDuration;
@@ -691,23 +695,23 @@
       // ── Frame playback: linear, 0 → 162 ──
       // ease:'none' = constant rate = 19fps = cinematic film feel
       .to(playhead, {
-        frame:    CONFIG.totalFrames - 1,
-        ease:     'none',
+        frame: CONFIG.totalFrames - 1,
+        ease: 'none',
         duration: dur,
       }, 0)
 
       // ── Zoom: slow push-in, eased for depth ──
       .to(playhead, {
-        zoom:     CONFIG.zoomEnd,
-        ease:     'power1.inOut',
+        zoom: CONFIG.zoomEnd,
+        ease: 'power1.inOut',
         duration: dur,
       }, 0)
 
       // ── Fade OUT: black returns to set up website transition ──
       .to(dom.cinematicOverlay, {
-        opacity:  1,
+        opacity: 1,
         duration: CONFIG.fadeOutDuration,
-        ease:     'power2.inOut',
+        ease: 'power2.inOut',
       }, CONFIG.fadeOutStart)
 
       // ── Hold on black before transition ──
@@ -726,27 +730,238 @@
     dbg('→ website');
 
     // Hide cinematic layer cleanly
-    gsap.to(dom.cinematicLayer, { opacity: 0, duration: 1.0, ease: 'power2.out' });
+    gsap.to(dom.cinematicLayer, {
+      opacity: 0,
+      duration: 1.0,
+      ease: 'power2.out',
+      onComplete: () => { dom.cinematicLayer.style.display = 'none'; }
+    });
 
-    // Reveal main content container (hero elements will be animated up)
+    // Ensure intro layer is fully disabled
+    dom.introLayer.style.pointerEvents = 'none';
+    dom.introLayer.style.display = 'none';
+
+    // Reveal the content container immediately — no slide
     dom.contentSections.removeAttribute('aria-hidden');
     gsap.set(dom.contentSections, { opacity: 1 });
 
-    // Movie outro animation for the first scene
-    const heroElements = document.querySelectorAll('.hero-section .section-eyebrow, .hero-title, .hero-subtitle, .hero-cta');
-    
-    const outroTl = gsap.timeline({
-      onComplete: () => {
-        // Restore scroll after text settles
+    /* ═══════════════════════════════════════════════════════════
+       SMOKE REVEAL ENGINE
+       Replaces the slide-up entirely. Hero content materialises
+       from darkness and smoke with paranormal displacement warp.
+       No positional movement — everything emerges in place.
+       ═══════════════════════════════════════════════════════════ */
+
+    const smokeLayer = document.getElementById('heroSmokeLayer');
+    const smokeCanvas = document.getElementById('heroSmokeCanvas');
+    const darknessVeil = document.getElementById('heroDarknessVeil');
+    const turbEl = document.getElementById('heroTurbulence');
+    const dispEl = document.getElementById('heroDisplace');
+    const heroSection = document.getElementById('heroSection');
+
+    // Individual hero elements for staggered materialisation
+    const portrait = document.querySelector('.portrait-placeholder');
+    const eyebrow = document.querySelector('.hero-text-col .section-eyebrow');
+    const heroTitle = document.querySelector('.hero-title');
+    const tagline = document.querySelector('.hero-tagline');
+    const desc = document.querySelector('.hero-desc');
+
+    // All hero elements start invisible, no Y offset — no slide
+    gsap.set([portrait, eyebrow, heroTitle, tagline, desc], {
+      opacity: 0,
+      scale: 0.992,       // imperceptible scale — creates a subtle "materialise" not a zoom
+      transformOrigin: 'center center',
+    });
+
+    /* ── SVG displacement warp tracker ────────────────────────
+       warp.d is the feDisplacementMap scale (0 = no warp, 28 = peak).
+       warp.fx/fy are the feTurbulence baseFrequency channels.
+       GSAP animates these values; applyWarp() writes to SVG attrs.
+       Direct attribute mutation is cheap — no layout recalc.
+       ─────────────────────────────────────────────────────── */
+    const warp = { d: 0, fx: 0.016, fy: 0.020 };
+
+    function applyWarp() {
+      if (!turbEl || !dispEl) return;
+      turbEl.setAttribute('baseFrequency', `${warp.fx.toFixed(4)} ${warp.fy.toFixed(4)}`);
+      dispEl.setAttribute('scale', warp.d.toFixed(2));
+    }
+
+    // Apply the SVG displacement filter to the hero section
+    if (heroSection) heroSection.style.filter = 'url(#smokeDisplace)';
+
+    /* ── Procedural smoke canvas ───────────────────────────────
+       Emits soft wisp particles that drift upward and fade.
+       Intentionally low FPS (≈10) — organic, not digital.
+       ─────────────────────────────────────────────────────── */
+    let sCtx = null;
+    let sRaf = null;
+    let sLast = 0;
+    let sActive = true;
+    let sParticles = [];
+    const S_FPS = IS_MOBILE ? 8 : 11;
+    const S_INT = 1000 / S_FPS;
+
+    function sParticle(seed) {
+      const cw = smokeCanvas.width, ch = smokeCanvas.height;
+      return {
+        x: seed ? Math.random() * cw : cw * 0.1 + Math.random() * cw * 0.8,
+        y: seed ? Math.random() * ch : ch + 30,
+        r: 55 + Math.random() * 130,
+        a: 0.04 + Math.random() * 0.18,
+        vx: (Math.random() - 0.5) * 0.30,
+        vy: -(0.14 + Math.random() * 0.26),
+        life: 0,
+        max: 160 + Math.random() * 240,
+        grow: 0.10 + Math.random() * 0.16,
+      };
+    }
+
+    function sInit() {
+      smokeCanvas.width = window.innerWidth;
+      smokeCanvas.height = window.innerHeight;
+      sCtx = smokeCanvas.getContext('2d');
+      for (let i = 0; i < 26; i++) sParticles.push(sParticle(true));
+    }
+
+    function sTick(ts) {
+      sRaf = requestAnimationFrame(sTick);
+      if (ts - sLast < S_INT) return;
+      sLast = ts;
+
+      const cw = smokeCanvas.width, ch = smokeCanvas.height;
+      sCtx.clearRect(0, 0, cw, ch);
+
+      if (sActive && sParticles.length < 38)
+        sParticles.push(sParticle(false));
+
+      for (let i = sParticles.length - 1; i >= 0; i--) {
+        const p = sParticles[i];
+        p.life++; p.x += p.vx; p.y += p.vy; p.r += p.grow;
+
+        const t = p.life / p.max;
+        let alpha = p.a;
+        if (t < 0.18) alpha *= t / 0.18;
+        else if (t > 0.68) alpha *= (1 - t) / 0.32;
+
+        const g = sCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, `rgba(5,3,2,${alpha})`);
+        g.addColorStop(0.5, `rgba(3,2,1,${(alpha * 0.55).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        sCtx.fillStyle = g;
+        sCtx.beginPath();
+        sCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        sCtx.fill();
+
+        if (p.life >= p.max || p.y < -p.r * 2) sParticles.splice(i, 1);
+      }
+    }
+
+    /* ── GSAP reveal timeline ──────────────────────────────────
+     *
+     *  SEQUENCE — entire reveal completes within 3 seconds
+     *
+     *   0.0   Darkness veil lifts. Warp distortion ramps up.
+     *   0.2   Portrait materialises through the distortion.
+     *   0.6   Warp peaks, begins resolving.
+     *   0.8   Title emerges. Fog panels start thinning.
+     *   1.1   Eyebrow → tagline → description appear.
+     *   1.5   Smoke canvas fades. Warp fully resolved.
+     *   2.2   Timeline complete → overlay fades out (0.8s).
+     *   3.0   Full overlay removed. Scroll restored.
+     *
+     * ─────────────────────────────────────────────────────── */
+
+    sInit();
+    sRaf = requestAnimationFrame(sTick);
+
+    const revTl = gsap.timeline({
+      onComplete() {
+        sActive = false;
+        cancelAnimationFrame(sRaf);
+        if (heroSection) heroSection.style.filter = '';
+        gsap.to(smokeLayer, {
+          opacity: 0, duration: 0.8, ease: 'power2.out',
+          onComplete() {
+            smokeLayer.style.display = 'none';
+          }
+        });
         document.body.style.overflow = '';
       }
     });
 
-    // Animate from way below the screen to position without fading in
-    outroTl.fromTo(heroElements,
-      { opacity: 1, y: window.innerHeight },
-      { opacity: 1, y: 0, duration: 2.8, ease: 'power3.out', stagger: 0.15 }
-    );
+    revTl
+
+      // 1. Darkness veil lifts — scene emerges from near-void
+      .to(darknessVeil, {
+        opacity: 0,
+        duration: 1.6,
+        ease: 'power1.inOut',
+      }, 0)
+
+      // 2. Displacement warp ramps up — paranormal distortion peaks fast
+      .to(warp, {
+        d: 26, fx: 0.020, fy: 0.026,
+        duration: 0.6,
+        ease: 'power2.inOut',
+        onUpdate: applyWarp,
+      }, 0)
+
+      // 3. Portrait materialises first — face through the smoke
+      .to(portrait, {
+        opacity: 1, scale: 1,
+        duration: 1.2,
+        ease: 'power2.out',
+      }, 0.2)
+
+      // 4. Warp resolves — reality solidifies back into clarity
+      .to(warp, {
+        d: 0, fx: 0.016, fy: 0.020,
+        duration: 1.4,
+        ease: 'power3.inOut',
+        onUpdate: applyWarp,
+      }, 0.6)
+
+      // 5. Fog panels thin independently — uneven, natural dissipation
+      .to('.hero-fog-4', { opacity: 0, duration: 1.0, ease: 'power2.inOut' }, 0.8)
+      .to('.hero-fog-1', { opacity: 0, duration: 1.3, ease: 'power1.inOut' }, 0.9)
+      .to('.hero-fog-2', { opacity: 0, duration: 1.1, ease: 'power2.inOut' }, 1.0)
+      .to('.hero-fog-3', { opacity: 0, duration: 0.9, ease: 'power2.inOut' }, 1.1)
+
+      // 6. Title emerges — slightly warped still, feels intentional
+      .to(heroTitle, {
+        opacity: 1, scale: 1,
+        duration: 1.0,
+        ease: 'power2.out',
+      }, 0.8)
+
+      // 7. Eyebrow — first supporting text element
+      .to(eyebrow, {
+        opacity: 1, scale: 1,
+        duration: 0.8,
+        ease: 'power2.out',
+      }, 1.1)
+
+      // 8. Tagline — manuscript inscription solidifies
+      .to(tagline, {
+        opacity: 1, scale: 1,
+        duration: 0.8,
+        ease: 'power2.out',
+      }, 1.3)
+
+      // 9. Description — final clarity, all warp gone
+      .to(desc, {
+        opacity: 1, scale: 1,
+        duration: 0.7,
+        ease: 'power2.out',
+      }, 1.5)
+
+      // 10. Smoke canvas fades — wisps disperse as scene clarifies
+      .to(smokeCanvas, {
+        opacity: 0,
+        duration: 1.0,
+        ease: 'power1.inOut',
+      }, 1.2);
 
     // Init GSAP scroll ecosystem
     gsap.registerPlugin(ScrollTrigger);
@@ -763,6 +978,9 @@
     }
 
     initContentAnimations();
+
+    // Portrait eye-tracking delayed past the full reveal duration
+    setTimeout(() => PortraitEyes.init(), 3000);
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -775,58 +993,239 @@
     function reveal(selector, opts = {}) {
       document.querySelectorAll(selector).forEach((el, i) => {
         gsap.to(el, {
-          opacity:  1,
-          y:        0,
-          duration: opts.duration || 0.9,
-          delay:    opts.stagger ? i * opts.stagger : 0,
-          ease:     'power3.out',
+          opacity: 1,
+          y: 0,
+          duration: opts.duration || 0.95,
+          delay: opts.stagger ? i * opts.stagger : 0,
+          ease: 'power3.out',
+          clearProps: 'transform',
           scrollTrigger: {
-            trigger:       el,
-            start:         opts.start || 'top 88%',
+            trigger: el,
+            start: opts.start || 'top 88%',
             toggleActions: 'play none none none',
           },
         });
       });
     }
 
-    // Story
-    reveal('#storySection .section-eyebrow');
-    reveal('#storySection .section-title');
-    reveal('#storySection .section-text',  { stagger: 0.15 });
-    reveal('#storySection .lore-card',     { duration: 1.1 });
+    // About section
+    reveal('#aboutSection .section-header');
+    reveal('.about-card', { stagger: 0.13, start: 'top 92%', duration: 1.1 });
 
-    // Gameplay
-    reveal('#gameplaySection .section-eyebrow');
-    reveal('#gameplaySection .section-title');
-    reveal('.feature-card', { stagger: 0.12, start: 'top 92%' });
+    // Screenshots section
+    reveal('#screenshotsSection .section-header');
+    reveal('.screenshot-card', { stagger: 0.1, start: 'top 90%', duration: 1.0 });
 
-    // Stats (with animated counters)
-    reveal('#statsSection .section-eyebrow');
-    reveal('#statsSection .section-title');
-    reveal('.stat', { stagger: 0.1, start: 'top 90%' });
+    // Atmosphere section
+    reveal('#atmosphereSection .section-header');
+    reveal('.atmosphere-card', { stagger: 0.14, start: 'top 90%', duration: 1.15 });
 
-    document.querySelectorAll('.stat-number').forEach((el) => {
-      const target = parseInt(el.dataset.target, 10);
-      const obj    = { val: 0 };
-      gsap.to(obj, {
-        val:      target,
-        duration: 2,
-        ease:     'power2.out',
-        scrollTrigger: {
-          trigger:       el,
-          start:         'top 90%',
-          toggleActions: 'play none none none',
-        },
-        onUpdate: () => { el.textContent = Math.round(obj.val); },
-      });
+    // Developer section
+    reveal('.developer-text', { duration: 1.0 });
+    reveal('.developer-links', { duration: 1.0 });
+
+    // Download section — vertical line first, then content cascades
+    gsap.to('.download-eyebrow-line', {
+      opacity: 0.4,
+      scaleY: 1,
+      duration: 1.2,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.download-section',
+        start: 'top 85%',
+        toggleActions: 'play none none none',
+      },
     });
-
-    // Footer
-    reveal('#footerSection .section-eyebrow');
-    reveal('#footerSection .section-title');
-    reveal('#footerSection .section-text');
-    reveal('#footerSection .btn-lg');
+    reveal('.download-eyebrow', { duration: 0.9 });
+    reveal('.download-title', { duration: 1.2 });
+    reveal('.download-tagline', { duration: 1.0 });
+    reveal('.download-meta', { duration: 1.0 });
+    reveal('.copyright', { duration: 0.8 });
   }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PORTRAIT EYE TRACKING
+
+     Architecture:
+       • One shared RAF loop drives all interpolation.
+       • Cursor raw position is smoothed via lerp each frame (lag = 0.07).
+       • Proximity is computed from cursor distance to the portrait rect
+         centre (eye region). Normalised 0–1 where 1 = very close.
+       • Pupil SVG offset is limited to ±MAX_DRIFT SVG units (small).
+       • Opacity values for shadows/vignette/pupils are lerped separately
+         so they fade out slowly when cursor leaves.
+       • No GSAP: pure RAF for full control and minimal overhead.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  const PortraitEyes = (function () {
+
+    /* Eye anchor positions in SVG viewBox units (0–100) */
+    const EYES = [
+      { el: null, shadowEl: null, cx: 37, cy: 28.5 },  // left eye
+      { el: null, shadowEl: null, cx: 61.5, cy: 28.5 },  // right eye
+    ];
+
+    /*
+     * MAX_DRIFT — maximum pupil offset in SVG viewBox units.
+     * The viewBox is 0-100, portrait is ~480px wide.
+     * 1 unit ≈ 4.8px. At 1.6 units ≈ 7.7px — imperceptible from afar,
+     * deeply unsettling up close.
+     */
+    const MAX_DRIFT = 1.6;
+
+    /* Lag factor — lower = more lag (more organic, less responsive) */
+    const CURSOR_LAG = 0.072;
+    const OPACITY_LAG = 0.038;
+
+    /* Proximity thresholds (px from portrait eye-region centre) */
+    const PROX_FAR = 520;  // beyond this → no effect
+    const PROX_NEAR = 60;   // at this distance → full intensity
+
+    /* Peak intensities */
+    const SHADOW_MAX_OPACITY = 0.50;  /* socket darkening cap */
+    const VIGNETTE_MAX_OPACITY = 0.38; /* proximity vignette cap */
+    const PUPIL_MAX_OPACITY = 0.78;  /* pupil visibility cap */
+
+    let vignetteEl = null;
+    let rafId = null;
+    let initialized = false;
+
+    /* Smooth cursor position (lerped) */
+    let cursorX = window.innerWidth / 2;
+    let cursorY = window.innerHeight / 2;
+    let smoothX = cursorX;
+    let smoothY = cursorY;
+
+    /* Current lerped opacity states */
+    let shadowOpacity = 0;
+    let vignetteOpacity = 0;
+    let pupilOpacity = 0;
+
+    /* Current pupil offsets per eye (in SVG units) */
+    const offsets = [{ x: 0, y: 0 }, { x: 0, y: 0 }];
+
+    function onMouseMove(e) {
+      cursorX = e.clientX;
+      cursorY = e.clientY;
+    }
+
+    function loop() {
+      rafId = requestAnimationFrame(loop);
+
+      /* Smooth cursor position */
+      smoothX += (cursorX - smoothX) * CURSOR_LAG;
+      smoothY += (cursorY - smoothY) * CURSOR_LAG;
+
+      /* Get portrait bounding rect (recomputed from cached ref) */
+      const portrait = document.getElementById('portraitPlaceholder');
+      if (!portrait) return;
+
+      const rect = portrait.getBoundingClientRect();
+
+      /*
+       * Eye anchor centre in screen-space.
+       * Anchors defined as % of portrait rect — matches SVG viewBox.
+       * Left eye: 37% across, 28.5% down.
+       * Right eye: 61.5% across, 28.5% down.
+       */
+      const eyeRegionCX = rect.left + rect.width * 0.49;  /* between both eyes */
+      const eyeRegionCY = rect.top + rect.height * 0.285; /* eye-level y */
+
+      /* Distance from smooth cursor to eye region centre */
+      const dx = smoothX - eyeRegionCX;
+      const dy = smoothY - eyeRegionCY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      /* Proximity factor: 0 (far) → 1 (very close) */
+      const prox = 1 - Math.min(1, Math.max(0,
+        (dist - PROX_NEAR) / (PROX_FAR - PROX_NEAR)
+      ));
+
+      /* Target opacity values driven by proximity */
+      const targetShadow = prox * SHADOW_MAX_OPACITY;
+      const targetVignette = prox * VIGNETTE_MAX_OPACITY;
+      const targetPupil = prox * PUPIL_MAX_OPACITY;
+
+      /* Lerp opacity states toward targets */
+      shadowOpacity += (targetShadow - shadowOpacity) * OPACITY_LAG;
+      vignetteOpacity += (targetVignette - vignetteOpacity) * OPACITY_LAG;
+      pupilOpacity += (targetPupil - pupilOpacity) * OPACITY_LAG;
+
+      /* Apply vignette opacity */
+      if (vignetteEl) vignetteEl.style.opacity = vignetteOpacity.toFixed(4);
+
+      /* Per-eye: compute pupil offset and apply shadows */
+      EYES.forEach((eye, i) => {
+        if (!eye.el) return;
+
+        /* Eye anchor in screen space */
+        const eyeScreenX = rect.left + rect.width * (eye.cx / 100);
+        const eyeScreenY = rect.top + rect.height * (eye.cy / 100);
+
+        /* Direction vector from eye anchor to smooth cursor */
+        const edx = smoothX - eyeScreenX;
+        const edy = smoothY - eyeScreenY;
+        const len = Math.sqrt(edx * edx + edy * edy) || 1;
+
+        /* Normalise and scale by proximity × max drift */
+        /*
+         * The pupil moves toward the cursor but is heavily capped.
+         * prox² means at medium distance there is almost no movement
+         * — only when very close does the pupil visibly shift.
+         * This creates the uncanny: the portrait "barely" moves.
+         */
+        const intensity = prox * prox * MAX_DRIFT;
+        const targetOffX = (edx / len) * intensity;
+        const targetOffY = (edy / len) * intensity;
+
+        /* Lerp individual pupil offsets */
+        offsets[i].x += (targetOffX - offsets[i].x) * CURSOR_LAG;
+        offsets[i].y += (targetOffY - offsets[i].y) * CURSOR_LAG;
+
+        /* Apply SVG transform — translate in viewBox units */
+        eye.el.setAttribute('transform',
+          `translate(${offsets[i].x.toFixed(3)}, ${offsets[i].y.toFixed(3)})`
+        );
+
+        /* Pupil opacity */
+        eye.el.style.opacity = pupilOpacity.toFixed(4);
+
+        /* Socket shadow opacity */
+        if (eye.shadowEl) {
+          eye.shadowEl.style.opacity = shadowOpacity.toFixed(4);
+        }
+      });
+    }
+
+    return {
+      init() {
+        if (initialized) return;
+        initialized = true;
+
+        /* Cache DOM refs */
+        EYES[0].el = document.getElementById('eyePupilLeft');
+        EYES[0].shadowEl = document.getElementById('eyeSocketShadowLeft');
+        EYES[1].el = document.getElementById('eyePupilRight');
+        EYES[1].shadowEl = document.getElementById('eyeSocketShadowRight');
+        vignetteEl = document.getElementById('portraitVignette');
+
+        /* Guard — bail if portrait is not in DOM */
+        if (!EYES[0].el || !EYES[1].el) return;
+
+        /* Track cursor globally (portrait can be scrolled into view) */
+        window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+        /* Kick off RAF loop */
+        loop();
+      },
+
+      destroy() {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+        window.removeEventListener('mousemove', onMouseMove);
+      },
+    };
+  }());
 
   /* ═══════════════════════════════════════════════════════════════════
      AUDIO TOGGLE BUTTON
@@ -874,7 +1273,10 @@
     if (PREFERS_REDUCED_MOTION) {
       dom.preloader.classList.add('done');
       dom.introLayer.setAttribute('aria-hidden', 'true');
+      dom.introLayer.style.pointerEvents = 'none';
+      dom.introLayer.style.display = 'none';
       dom.cinematicLayer.setAttribute('aria-hidden', 'true');
+      dom.cinematicLayer.style.display = 'none';
       gsap.set(dom.contentSections, { opacity: 1 });
       document.body.style.overflow = '';
       // Still register ScrollTrigger for content reveals
@@ -890,17 +1292,17 @@
      */
     gsap.set([dom.introEyebrow, dom.introLogo, dom.introCta], { opacity: 0 });
     gsap.set(dom.introRule, {
-      opacity:         0,
-      scaleX:          0,
+      opacity: 0,
+      scaleX: 0,
       transformOrigin: 'center center',
     });
-    gsap.set(dom.introLayer,      { opacity: 1 });
+    gsap.set(dom.introLayer, { opacity: 1 });
     /*
      * cinematicLayer is ALWAYS visible (opacity 1) so frame 0 shows
      * through the transparent intro layer as the background.
      * cinematicOverlay starts at opacity 0 — no black cover over the frame.
      */
-    gsap.set(dom.cinematicLayer,  { opacity: 1 });
+    gsap.set(dom.cinematicLayer, { opacity: 1 });
     gsap.set(dom.cinematicOverlay, { opacity: 0 });
     gsap.set(dom.contentSections, { opacity: 0 });
 

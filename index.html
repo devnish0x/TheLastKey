@@ -4,14 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Enter the haunted manor — a cinematic horror experience. Built with GSAP.">
-  <title>The Manor — Enter If You Dare</title>
+  <meta name="description"
+    content="THE LAST KEY — A psychological 3D horror experience set inside a forgotten Victorian mansion. Find the key before the mansion finds you.">
+  <meta name="theme-color" content="#050505">
+  <title>THE LAST KEY — Find the key before the mansion finds you.</title>
 
-  <!-- Fonts -->
+  <!-- Fonts: Cinzel (display), Cormorant Garamond (serif body), Inter (UI) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap"
     rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
@@ -24,41 +26,37 @@
 
   <!-- ═══════════════════════════════════════════════════════ -->
   <!-- PRELOADER                                               -->
-  <!-- Shows while all 163 WebP frames are decoded.           -->
   <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="preloader" role="status" aria-label="Loading The Manor">
+  <div id="preloader" role="status" aria-label="Loading The Last Key">
     <div class="preloader-inner">
       <div class="preloader-icon">
         <svg viewBox="0 0 100 100" width="80" height="80" aria-hidden="true">
           <circle class="preloader-ring" cx="50" cy="50" r="45" />
         </svg>
-        <span class="preloader-eye" aria-hidden="true">👁</span>
+        <span class="preloader-eye" aria-hidden="true">🗝</span>
       </div>
-      <h2 class="preloader-title">The Manor</h2>
+      <h2 class="preloader-title">The Last Key</h2>
       <div class="preloader-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
         id="preloaderProgress">
         <div class="preloader-bar-fill" id="preloaderBar"></div>
       </div>
       <p class="preloader-percent" id="preloaderPercent" aria-live="polite">0%</p>
-      <p class="preloader-hint">Summoning the darkness&hellip;</p>
+      <p class="preloader-hint">The mansion is waiting&hellip;</p>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════ -->
   <!-- PRE-INTRO ATMOSPHERIC LAYER                             -->
-  <!--                                                         -->
-  <!-- State 1: Near-black atmosphere, grain, subtle motes,   -->
-  <!-- sparse logo, minimal CTA. Loaded AFTER preloader.      -->
   <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="introLayer" aria-label="The Manor — atmospheric entry screen">
+  <div id="introLayer" aria-label="The Last Key — atmospheric entry screen">
 
-    <!-- Film grain canvas — JS renders low-res noise, CSS stretches it -->
+    <!-- Film grain canvas -->
     <canvas id="grainCanvas" aria-hidden="true"></canvas>
 
-    <!-- Vignette overlay — darkens edges to focus attention on center -->
+    <!-- Vignette overlay -->
     <div class="intro-vignette" aria-hidden="true"></div>
 
-    <!-- Ambient radial motes — barely visible amber drifts, pure CSS -->
+    <!-- Ambient motes -->
     <div class="intro-motes" aria-hidden="true">
       <div class="mote mote-1"></div>
       <div class="mote mote-2"></div>
@@ -67,22 +65,15 @@
 
     <!-- Centered identity block -->
     <div class="intro-content">
-      <p class="intro-eyebrow">Blackwood Studios</p>
+      <p class="intro-eyebrow">A Psychological Horror Experience</p>
 
       <div class="intro-title-block">
-        <!-- Page's only h1 lives here — intro logo IS the page heading -->
-        <h1 class="intro-logo">The Manor</h1>
-        <!-- Decorative rule that grows outward on entry, collapses on click -->
+        <h1 class="intro-logo">The Last <span class="intro-key-word">Key</span></h1>
         <div class="intro-rule" aria-hidden="true"></div>
       </div>
 
-      <!--
-        CTA deliberately avoids any action language.
-        The restraint IS the design: curiosity over clarity.
-      -->
-      <button id="introCta" class="intro-cta" type="button"
-        aria-label="Enter The Manor experience — begin the cinematic sequence">
-        <span class="cta-inner">Enter if you dare</span>
+      <button id="introCta" class="intro-cta" type="button" aria-label="Do not enter — begin the cinematic sequence">
+        <span class="cta-inner">Do Not Enter</span>
       </button>
     </div>
 
@@ -90,20 +81,14 @@
 
   <!-- ═══════════════════════════════════════════════════════ -->
   <!-- CINEMATIC PLAYBACK LAYER                                -->
-  <!--                                                         -->
-  <!-- State 3: 163 WebP frames played deterministically via  -->
-  <!-- GSAP ticker. Canvas + black overlay for fade in/out.   -->
   <!-- ═══════════════════════════════════════════════════════ -->
   <div id="cinematicLayer" aria-hidden="true">
-    <!-- The frame canvas — receives ImageBitmap draws each tick -->
     <canvas id="frameCanvas"></canvas>
-    <!-- Full-black overlay: starts opaque, fades away on play, returns at end -->
     <div id="cinematicOverlay" aria-hidden="true"></div>
   </div>
 
-
   <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- AUDIO TOGGLE (appears once cinematic begins)            -->
+  <!-- AUDIO TOGGLE                                            -->
   <!-- ═══════════════════════════════════════════════════════ -->
   <button id="audioToggle" class="audio-toggle hidden" aria-label="Toggle background music" type="button">
     <svg class="audio-icon audio-on" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
@@ -122,140 +107,345 @@
 
   <!-- ═══════════════════════════════════════════════════════ -->
   <!-- WEBSITE CONTENT (State 4 — post-cinematic)             -->
-  <!--                                                         -->
-  <!-- No animation section. The cinematic IS the intro.      -->
-  <!-- Normal scroll-based GSAP reveals from here onward.     -->
   <!-- ═══════════════════════════════════════════════════════ -->
   <main id="contentSections" aria-hidden="true">
 
-    <!-- Hero -->
+    <!-- ── HERO SECTION ──────────────────────────────────── -->
     <section class="content-section hero-section" id="heroSection">
-      <div class="section-inner">
-        <p class="section-eyebrow">A Dark Tale Awaits</p>
-        <!-- h2 here — h1 lives in the intro layer -->
-        <h2 class="hero-title">
-          <span class="line">Welcome to</span>
-          <span class="line accent">The Manor</span>
-        </h2>
-        <p class="hero-subtitle">An immersive horror experience where every shadow hides a secret
-          and every door leads deeper into madness.</p>
-        <div class="hero-cta">
-          <a href="#gameplaySection" class="btn btn-primary" id="ctaPlay">Begin Your Descent</a>
-          <a href="#storySection" class="btn btn-ghost" id="ctaStory">Read the Lore</a>
+      <div class="section-inner hero-inner">
+
+        <!-- Left: Text Column -->
+        <div class="hero-text-col">
+          <p class="section-eyebrow">Psychological 3D Horror</p>
+          <h2 class="hero-title">
+            <span class="hero-title-line">The</span>
+            <span class="hero-title-line hero-title-accent">Last <span class="hero-key-word">Key</span></span>
+          </h2>
+          <p class="hero-tagline">"Find the key before the mansion finds you."</p>
+          <p class="hero-desc">
+            A psychological 3D horror experience set inside a forgotten Victorian mansion
+            filled with locked doors, hidden passages, and something watching from the dark.
+          </p>
         </div>
+
+        <!-- Right: Portrait -->
+        <div class="hero-portrait-col">
+          <div class="portrait-placeholder" id="portraitPlaceholder"
+            aria-label="Victorian portrait — the figure watches">
+
+            <!-- Atmospheric frame glow (unchanged) -->
+            <div class="portrait-frame-glow" aria-hidden="true"></div>
+
+            <!-- The actual portrait painting -->
+            <img src="potrait.png"
+              alt="A pale Victorian aristocrat seated in shadow, his eyes two hollow voids of absolute darkness"
+              class="portrait-img" id="portraitImg" draggable="false">
+
+            <!-- Eye overlay — two SVG pupils that move with the cursor -->
+            <svg class="portrait-eye-layer" id="portraitEyeLayer" viewBox="0 0 100 100" preserveAspectRatio="none"
+              aria-hidden="true" focusable="false">
+
+              <!-- Proximity shadow darkener — fills the socket area -->
+              <ellipse class="eye-socket-shadow" id="eyeSocketShadowLeft" cx="50" cy="28.5" rx="7" ry="4.5" />
+              <ellipse class="eye-socket-shadow" id="eyeSocketShadowRight" cx="61.5" cy="28.5" rx="7" ry="4.5" />
+
+              <!-- Ghostly pale pupils — tiny cold white specks -->
+              <circle class="eye-pupil" id="eyePupilLeft" cx="46" cy="25" r="0.8" />
+              <circle class="eye-pupil" id="eyePupilRight" cx="56" cy="25" r="0.8" />
+            </svg>
+
+            <!-- Proximity vignette darkener (JS drives opacity) -->
+            <div class="portrait-proximity-vignette" id="portraitVignette" aria-hidden="true"></div>
+
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider" aria-hidden="true">
-      <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-        <path d="M0,30 Q300,0 600,30 T1200,30" fill="none" stroke="rgba(180,140,100,0.3)" stroke-width="1" />
-      </svg>
-    </div>
+    <!-- ── ABOUT SECTION ─────────────────────────────────── -->
+    <section class="content-section about-section" id="aboutSection">
+      <div class="section-inner">
 
-    <!-- Story -->
-    <section class="content-section" id="storySection">
-      <div class="section-inner two-col">
-        <div class="col text-col">
-          <p class="section-eyebrow">The Story</p>
-          <h2 class="section-title">Blackwood Manor, 1887</h2>
-          <p class="section-text">
-            Lord Alistair Blackwood vanished on All Hallows' Eve, leaving behind only a locked journal
-            and the faint smell of sulfur. The servants fled. The village sealed the road. Decades of
-            silence followed — until the lights returned to the windows, flickering in patterns that
-            no one could explain.
-          </p>
-          <p class="section-text">
-            You are an investigator drawn to the inexplicable. Armed with little more than a lantern
-            and your wits, you must uncover the truth buried within the manor's crumbling walls.
+        <div class="section-header center">
+          <p class="section-eyebrow">What Lies Within</p>
+          <h2 class="section-title">A Mansion That Remembers</h2>
+          <p class="section-subtitle">
+            Every locked door is a question. Every shadow, an answer you are not ready for.
           </p>
         </div>
-        <div class="col visual-col">
-          <div class="lore-card" id="loreCard">
-            <div class="lore-card-inner">
-              <div class="lore-icon">📜</div>
-              <blockquote>"Do not open the third door on the east wing.
-                What resides there has no name."</blockquote>
-              <cite>— Excerpt from the Blackwood Journal</cite>
+
+        <div class="about-cards-grid">
+
+          <div class="about-card" id="aboutCardExplore">
+            <div class="about-card-glyph" aria-hidden="true">I</div>
+            <h3 class="about-card-title">Explore the Mansion</h3>
+            <p class="about-card-text">
+              Wander through corridors that shift when you are not watching.
+              Every room holds a memory — and some memories do not wish to be found.
+            </p>
+          </div>
+
+          <div class="about-card" id="aboutCardClues">
+            <div class="about-card-glyph" aria-hidden="true">II</div>
+            <h3 class="about-card-title">Find Hidden Clues</h3>
+            <p class="about-card-text">
+              Ink-stained journals. Shattered portraits. Candles that light themselves.
+              The mansion speaks — if you dare to listen closely.
+            </p>
+          </div>
+
+          <div class="about-card" id="aboutCardUnlock">
+            <div class="about-card-glyph" aria-hidden="true">III</div>
+            <h3 class="about-card-title">Unlock Forbidden Areas</h3>
+            <p class="about-card-text">
+              Certain doors were sealed for a reason.
+              The right key opens the wrong rooms. What is locked should stay locked.
+            </p>
+          </div>
+
+          <div class="about-card" id="aboutCardEscape">
+            <div class="about-card-glyph" aria-hidden="true">IV</div>
+            <h3 class="about-card-title">Escape Before It Finds You</h3>
+            <p class="about-card-text">
+              Something moves through the walls.
+              It has been here far longer than you. And it already knows your name.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── SCREENSHOTS SECTION ───────────────────────────── -->
+    <section class="content-section screenshots-section" id="screenshotsSection">
+      <div class="section-inner">
+
+        <div class="section-header center">
+          <p class="section-eyebrow">Inside the Darkness</p>
+          <h2 class="section-title">Captured Moments</h2>
+        </div>
+
+        <div class="screenshots-grid">
+
+          <div class="screenshot-card" id="screenshotCard01">
+            <div class="screenshot-inner">
+              <div class="screenshot-placeholder">
+                <span class="screenshot-number">01</span>
+                <span class="screenshot-label">Screenshot 01</span>
+              </div>
             </div>
           </div>
+
+          <div class="screenshot-card" id="screenshotCard02">
+            <div class="screenshot-inner">
+              <div class="screenshot-placeholder">
+                <span class="screenshot-number">02</span>
+                <span class="screenshot-label">Screenshot 02</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="screenshot-card" id="screenshotCard03">
+            <div class="screenshot-inner">
+              <div class="screenshot-placeholder">
+                <span class="screenshot-number">03</span>
+                <span class="screenshot-label">Screenshot 03</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="screenshot-card" id="screenshotCard04">
+            <div class="screenshot-inner">
+              <div class="screenshot-placeholder">
+                <span class="screenshot-number">04</span>
+                <span class="screenshot-label">Screenshot 04</span>
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </section>
 
-    <!-- Gameplay -->
-    <section class="content-section dark-section" id="gameplaySection">
+    <!-- ── ATMOSPHERE SECTION ────────────────────────────── -->
+    <section class="content-section atmosphere-section" id="atmosphereSection">
       <div class="section-inner">
-        <p class="section-eyebrow">Gameplay</p>
-        <h2 class="section-title center">What Awaits Inside</h2>
-        <div class="features-grid">
-          <div class="feature-card" id="featureExplore">
-            <div class="feature-icon">🔦</div>
-            <h3>Explore</h3>
-            <p>Navigate 40+ hand-crafted rooms, each hiding clues, traps, and terrors unique
-              to the Blackwood legacy.</p>
-          </div>
-          <div class="feature-card" id="featureSolve">
-            <div class="feature-icon">🧩</div>
-            <h3>Solve</h3>
-            <p>Decipher cryptic puzzles rooted in Victorian occultism. Every riddle brings you
-              closer — or seals your fate.</p>
-          </div>
-          <div class="feature-card" id="featureSurvive">
-            <div class="feature-icon">💀</div>
-            <h3>Survive</h3>
-            <p>Something stalks the hallways. Manage your sanity, conserve your light,
-              and never look behind you.</p>
-          </div>
-          <div class="feature-card" id="featureDecide">
-            <div class="feature-icon">⚖️</div>
-            <h3>Decide</h3>
-            <p>Branching narratives lead to seven distinct endings. Your choices echo through
-              the manor's dark history.</p>
-          </div>
+
+        <div class="section-header center">
+          <p class="section-eyebrow">Enter If You Dare</p>
+          <h2 class="section-title">What Awaits Inside</h2>
         </div>
+
+        <div class="atmosphere-cards">
+
+          <div class="atmosphere-card" id="atmoCardMansion">
+            <div class="atmo-card-inner">
+              <p class="atmo-eyebrow">The Place</p>
+              <h3 class="atmo-title">The Mansion</h3>
+              <p class="atmo-text">
+                Built in 1847. Abandoned in 1891. No record of what happened to
+                the family inside. The walls are still warm to the touch.
+              </p>
+              <div class="atmo-rule" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="atmosphere-card atmosphere-card--center" id="atmoCardWatcher">
+            <div class="atmo-card-inner">
+              <p class="atmo-eyebrow">The Presence</p>
+              <h3 class="atmo-title">The Watcher</h3>
+              <p class="atmo-text">
+                It does not pursue. It does not speak.
+                It simply waits — in the dark at the end of every corridor —
+                and it has been waiting a very long time.
+              </p>
+              <div class="atmo-rule" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="atmosphere-card" id="atmoCardKey">
+            <div class="atmo-card-inner">
+              <p class="atmo-eyebrow">The Object</p>
+              <h3 class="atmo-title">The Final Key</h3>
+              <p class="atmo-text">
+                Somewhere inside this house is a key that opens every door.
+                The survivors never spoke of what they found behind the last one.
+              </p>
+              <div class="atmo-rule" aria-hidden="true"></div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
 
-    <!-- Stats -->
-    <section class="content-section" id="statsSection">
-      <div class="section-inner">
-        <p class="section-eyebrow">By the Numbers</p>
-        <h2 class="section-title center">The Manor in Detail</h2>
-        <div class="stats-row">
-          <div class="stat" id="stat1">
-            <span class="stat-number" data-target="40">0</span>
-            <span class="stat-label">Rooms to Explore</span>
-          </div>
-          <div class="stat" id="stat2">
-            <span class="stat-number" data-target="7">0</span>
-            <span class="stat-label">Unique Endings</span>
-          </div>
-          <div class="stat" id="stat3">
-            <span class="stat-number" data-target="12">0</span>
-            <span class="stat-label">Hours of Gameplay</span>
-          </div>
-          <div class="stat" id="stat4">
-            <span class="stat-number" data-target="163">0</span>
-            <span class="stat-label">Cinematic Frames</span>
-          </div>
+    <!-- ── DEVELOPER SECTION ─────────────────────────────── -->
+    <section class="content-section developer-section" id="developerSection">
+      <div class="section-inner developer-inner">
+
+        <div class="developer-text">
+          <p class="section-eyebrow">The Creators</p>
+          <h2 class="section-title">Developed By</h2>
+          <p class="developer-studio">[ Student Project ]</p>
+          <p class="developer-desc">
+            A student-built psychological horror experience inspired by abandoned mansions, forgotten memories, and the
+            fear of being watched.
+          </p>
         </div>
+
+        <div class="developer-links">
+          <!-- <a href="#" class="dev-link" id="devLinkDiscord" aria-label="Join our Discord">
+            <span class="dev-link-icon" aria-hidden="true">◈</span>
+            <span class="dev-link-label">Discord</span>
+          </a> -->
+          <!-- <a href="#" class="dev-link" id="devLinkGithub" aria-label="Visit our GitHub">
+            <span class="dev-link-icon" aria-hidden="true">◈</span>
+            <span class="dev-link-label">GitHub</span>
+          </a> -->
+          <!-- <a href="#" class="dev-link" id="devLinkItch" aria-label="Find us on Itch.io">
+            <span class="dev-link-icon" aria-hidden="true">◈</span>
+            <span class="dev-link-label">Itch.io</span>
+          </a> -->
+        </div>
+
       </div>
     </section>
 
-    <!-- Footer / CTA -->
-    <footer class="content-section footer-section" id="footerSection">
-      <div class="section-inner center">
-        <p class="section-eyebrow">Coming Soon</p>
-        <h2 class="section-title">Dare to Enter?</h2>
-        <p class="section-text footer-text">Wishlist now and be the first to step inside when
-          the doors open.</p>
-        <a href="#" class="btn btn-primary btn-lg" id="ctaWishlist">Add to Wishlist</a>
-        <p class="copyright">© 2026 Blackwood Studios. All rights reserved.</p>
+    <!-- ── FINAL DOWNLOAD SECTION ────────────────────────── -->
+    <footer class="content-section download-section" id="downloadSection">
+
+      <!-- Ambient darkness glow -->
+      <div class="download-glow" aria-hidden="true"></div>
+
+      <div class="section-inner download-inner">
+
+        <div class="download-eyebrow-line" aria-hidden="true"></div>
+        <p class="section-eyebrow download-eyebrow">The Door Is Open</p>
+        <h2 class="download-title">Enter the Mansion</h2>
+        <p class="download-tagline">The door is waiting.</p>
+
+        <a href="https://github.com/tds2k5" class="btn-download" id="ctaDownload" target="_blank"
+          rel="noopener noreferrer" aria-label="Download The Last Key (opens in a new tab)">
+          <span class="btn-download-inner">Download Now</span>
+        </a>
+
+        <div class="download-meta" role="list">
+          <div class="download-meta-item" role="listitem">
+            <span class="meta-label">Platform</span>
+            <span class="meta-value" id="downloadPlatform">PC / Windows</span>
+          </div>
+          <div class="download-meta-divider" aria-hidden="true"></div>
+          <div class="download-meta-item" role="listitem">
+            <span class="meta-label">Version</span>
+            <span class="meta-value" id="downloadVersion">v0.0.0 — Demo</span>
+          </div>
+          <div class="download-meta-divider" aria-hidden="true"></div>
+          <div class="download-meta-item" role="listitem">
+            <span class="meta-label">Size</span>
+            <span class="meta-value" id="downloadSize">— GB</span>
+          </div>
+        </div>
+
+        <p class="copyright">© 2026 [ Student Project ]. All rights reserved.</p>
+
       </div>
     </footer>
 
   </main>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <!-- HERO SMOKE REVEAL — SVG filter defs (zero-size, invisible)  -->
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <svg id="heroFilterSvg" aria-hidden="true" focusable="false"
+    style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;">
+    <defs>
+      <!--
+        smokeDisplace: organic feTurbulence → feDisplacementMap.
+        scale starts at 0 (no warp) and is animated to ~28 at peak
+        then back to 0 by GSAP via setAttribute on #heroTurbulence/#heroDisplace.
+        numOctaves 4 gives rich, non-repeating paranormal texture.
+      -->
+      <filter id="smokeDisplace" x="-15%" y="-15%" width="130%" height="130%"
+              color-interpolation-filters="sRGB">
+        <feTurbulence id="heroTurbulence"
+          type="turbulence"
+          baseFrequency="0.016 0.020"
+          numOctaves="4"
+          seed="13"
+          result="turbOut"/>
+        <feDisplacementMap id="heroDisplace"
+          in="SourceGraphic" in2="turbOut"
+          scale="0"
+          xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+
+      <!-- smokeBlur: heavy Gaussian for fog panel softness -->
+      <filter id="smokeBlur" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="22"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <!-- HERO SMOKE LAYER — driven entirely by JS, hidden by default -->
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <div id="heroSmokeLayer" aria-hidden="true">
+    <!-- Procedural smoke particle canvas -->
+    <canvas id="heroSmokeCanvas"></canvas>
+
+    <!-- Volumetric fog panels — four independently drifting blobs -->
+    <div class="hero-fog hero-fog-1" aria-hidden="true"></div>
+    <div class="hero-fog hero-fog-2" aria-hidden="true"></div>
+    <div class="hero-fog hero-fog-3" aria-hidden="true"></div>
+    <div class="hero-fog hero-fog-4" aria-hidden="true"></div>
+
+    <!-- Darkness veil — lifted first, over everything else -->
+    <div id="heroDarknessVeil" aria-hidden="true"></div>
+  </div>
 
   <!-- GSAP + ScrollTrigger (CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>

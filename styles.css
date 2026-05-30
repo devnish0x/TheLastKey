@@ -1,78 +1,109 @@
 /* ═══════════════════════════════════════════════════════════
-   DESIGN TOKENS
+   THE LAST KEY — Design System
    ═══════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   ────────────────────────────────────────────────────────── */
 :root {
-  --bg-black:       #000000;
-  --bg-deep:        #0a0a0c;
-  --bg-intro:       #050506;   /* slightly warmer than pure black */
-  --bg-section:     #0e0e12;
-  --bg-card:        #141419;
-  --bg-card-hover:  #1a1a22;
+  /* Backgrounds */
+  --bg-void: #050505;
+  /* absolute base — near-black */
+  --bg-deep: #080808;
+  /* section bg */
+  --bg-surface: #121212;
+  /* card surfaces */
+  --bg-card: #0e0e0e;
+  /* card base */
+  --bg-card-hover: #161616;
+  /* card hover */
 
-  --text-primary:   #e8e4df;
-  --text-secondary: #9e978e;
-  --text-muted:     #5a554e;
+  /* Text */
+  --text-primary: #E8E0D0;
+  /* warm off-white — never pure white */
+  --text-secondary: #A09890;
+  /* warm mid-grey */
+  --text-muted: #8B8B8B;
+  /* dim text / labels */
+  --text-dim: #4A4A4A;
+  /* very dim, placeholders etc. */
 
-  --accent:         #b48c64;
-  --accent-light:   #d4b48a;
-  --accent-glow:    rgba(180, 140, 100, 0.25);
+  /* Accent — aged amber/brass */
+  --accent: #8C6A3B;
+  /* primary brand accent */
+  --accent-light: #C49A6C;
+  /* hover / highlight state */
+  --accent-glow: rgba(140, 106, 59, 0.22);
+  --accent-border: rgba(140, 106, 59, 0.18);
+  --accent-border-hover: rgba(196, 154, 108, 0.45);
 
-  --danger:         #8b3a3a;
+  /* Typography */
+  --font-display: 'Cinzel', serif;
+  /* headings — gothic, aristocratic */
+  --font-gothic: 'Cinzel Decorative', serif;
+  /* intro title — ornate Victorian manuscript */
+  --font-serif: 'Cormorant Garamond', serif;
+  /* atmospheric body text */
+  --font-ui: 'Inter', sans-serif;
+  /* labels, UI micro-text */
 
-  --font-display:   'Cinzel', serif;
-  --font-body:      'Cormorant Garamond', serif;
-  --font-ui:        'Inter', sans-serif;
+  /* Spacing scale */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 7rem;
+  --space-xxl: 12rem;
 
-  --space-xs:  0.5rem;
-  --space-sm:  1rem;
-  --space-md:  2rem;
-  --space-lg:  4rem;
-  --space-xl:  6rem;
-  --space-xxl: 10rem;
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
 
-  --radius-sm:  6px;
-  --radius-md:  12px;
-  --radius-lg:  20px;
-
-  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  /* Easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-slow: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ──────────────────────────────────────────────────────────
    RESET & BASE
-   ═══════════════════════════════════════════════════════════ */
-*, *::before, *::after {
+   ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 html {
-  /* scroll-behavior: smooth intentionally ABSENT.
-     GSAP ScrollTrigger manages all scroll physics — CSS smooth-scroll
-     would fight it and cause double-easing jank. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: var(--font-body);
-  background: var(--bg-black);
+  font-family: var(--font-serif);
+  background: var(--bg-void);
   color: var(--text-primary);
-  line-height: 1.7;
+  line-height: 1.75;
   overflow-x: hidden;
 }
 
-img, canvas { display: block; }
+img,
+canvas {
+  display: block;
+}
 
 a {
   color: inherit;
   text-decoration: none;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   SKIP LINK (accessibility — first focusable element)
-   ═══════════════════════════════════════════════════════════ */
+/* ──────────────────────────────────────────────────────────
+   SKIP LINK (accessibility)
+   ────────────────────────────────────────────────────────── */
 .skip-link {
   position: absolute;
   top: -9999px;
@@ -86,23 +117,25 @@ a {
   border-radius: var(--radius-sm);
   z-index: 99999;
 }
+
 .skip-link:focus {
   top: 1rem;
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ──────────────────────────────────────────────────────────
    PRELOADER
-   ═══════════════════════════════════════════════════════════ */
+   ────────────────────────────────────────────────────────── */
 #preloader {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--bg-black);
+  background: var(--bg-void);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: opacity 0.9s var(--ease-smooth), visibility 0.9s;
 }
+
 #preloader.done {
   opacity: 0;
   visibility: hidden;
@@ -123,17 +156,27 @@ a {
 .preloader-ring {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 2;
+  stroke-width: 1.5;
   stroke-dasharray: 283;
   stroke-dashoffset: 283;
   stroke-linecap: round;
-  animation: ringDraw 2s var(--ease-out) infinite;
+  animation: ringDraw 2.4s var(--ease-out) infinite;
 }
 
 @keyframes ringDraw {
-  0%   { stroke-dashoffset: 283; transform: rotate(0deg); }
-  50%  { stroke-dashoffset: 60; }
-  100% { stroke-dashoffset: 283; transform: rotate(360deg); }
+  0% {
+    stroke-dashoffset: 283;
+    transform: rotate(0deg);
+  }
+
+  50% {
+    stroke-dashoffset: 60;
+  }
+
+  100% {
+    stroke-dashoffset: 283;
+    transform: rotate(360deg);
+  }
 }
 
 .preloader-eye {
@@ -141,19 +184,29 @@ a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 28px;
-  animation: pulseEye 2s ease-in-out infinite;
+  font-size: 26px;
+  animation: pulseEye 2.4s ease-in-out infinite;
 }
+
 @keyframes pulseEye {
-  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
-  50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) scale(0.88);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
 }
 
 .preloader-title {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent-light);
   margin-bottom: var(--space-md);
@@ -161,52 +214,43 @@ a {
 
 .preloader-bar-track {
   width: 100%;
-  height: 2px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
   overflow: hidden;
 }
+
 .preloader-bar-fill {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, var(--accent), var(--accent-light));
-  border-radius: 2px;
   transition: width 0.12s linear;
 }
 
 .preloader-percent {
   font-family: var(--font-ui);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 400;
   color: var(--accent);
   margin-top: var(--space-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
 
 .preloader-hint {
-  font-family: var(--font-ui);
-  font-size: 0.72rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  margin-top: 0.3rem;
+  margin-top: 0.4rem;
   letter-spacing: 0.04em;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   PRE-INTRO ATMOSPHERIC LAYER  (#introLayer)
-
-   Fixed fullscreen, z-index 800. Stays in DOM after preintro;
-   becomes invisible (opacity 0) once cinematic begins.
-   All child text starts at opacity:0 — GSAP animates them in.
-   ═══════════════════════════════════════════════════════════ */
+/* ──────────────────────────────────────────────────────────
+   PRE-INTRO ATMOSPHERIC LAYER
+   ────────────────────────────────────────────────────────── */
 #introLayer {
   position: fixed;
   inset: 0;
   z-index: 800;
-  /*
-   * Transparent background — frame 0 on the canvas below (z-index 400)
-   * shows through as the atmospheric backdrop. The darkness comes from
-   * the frame image itself, plus the vignette overlay on top.
-   */
   background: transparent;
   display: flex;
   align-items: center;
@@ -214,12 +258,6 @@ a {
   overflow: hidden;
 }
 
-/* ── Film Grain Canvas ──────────────────────────────────── */
-/*
- * JS renders noise on a tiny canvas (25% resolution).
- * CSS stretches it to fill the viewport.
- * mix-blend-mode: overlay on dark bg = subtle grain without washing out color.
- */
 #grainCanvas {
   position: absolute;
   inset: 0;
@@ -227,32 +265,19 @@ a {
   height: 100%;
   pointer-events: none;
   mix-blend-mode: overlay;
-  /* opacity set by JS via CONFIG.grainOpacity */
   z-index: 1;
 }
 
-/* ── Vignette ───────────────────────────────────────────── */
-/*
- * Darkens edges to pull the eye inward toward the centered content.
- * No JS — pure CSS pseudo-element.
- */
 .intro-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 35%,
-    rgba(0, 0, 0, 0.65) 100%
-  );
+  background: radial-gradient(ellipse at center,
+      transparent 30%,
+      rgba(0, 0, 0, 0.72) 100%);
   pointer-events: none;
   z-index: 2;
 }
 
-/* ── Ambient Motes ──────────────────────────────────────── */
-/*
- * 3 barely-visible radial gradients that drift slowly.
- * Pure CSS — no JS RAF cost. Extremely subtle: opacity ~3–5%.
- */
 .intro-motes {
   position: absolute;
   inset: 0;
@@ -272,12 +297,8 @@ a {
   height: 600px;
   top: -5%;
   left: -12%;
-  background: radial-gradient(
-    circle at center,
-    rgba(180, 140, 100, 0.038) 0%,
-    transparent 70%
-  );
-  animation: moteDrift1 26s ease-in-out infinite alternate;
+  background: radial-gradient(circle at center, rgba(140, 106, 59, 0.035) 0%, transparent 70%);
+  animation: moteDrift1 28s ease-in-out infinite alternate;
 }
 
 .mote-2 {
@@ -285,12 +306,8 @@ a {
   height: 450px;
   top: 45%;
   right: -8%;
-  background: radial-gradient(
-    circle at center,
-    rgba(140, 100, 80, 0.028) 0%,
-    transparent 70%
-  );
-  animation: moteDrift2 32s ease-in-out infinite alternate;
+  background: radial-gradient(circle at center, rgba(100, 80, 50, 0.025) 0%, transparent 70%);
+  animation: moteDrift2 34s ease-in-out infinite alternate;
   animation-delay: -10s;
 }
 
@@ -299,34 +316,61 @@ a {
   height: 350px;
   bottom: 10%;
   left: 35%;
-  background: radial-gradient(
-    circle at center,
-    rgba(180, 140, 100, 0.022) 0%,
-    transparent 70%
-  );
-  animation: moteDrift3 28s ease-in-out infinite alternate;
+  background: radial-gradient(circle at center, rgba(140, 106, 59, 0.02) 0%, transparent 70%);
+  animation: moteDrift3 30s ease-in-out infinite alternate;
   animation-delay: -18s;
 }
 
 @keyframes moteDrift1 {
-  0%   { transform: translate(0,    0)    scale(1); }
-  30%  { transform: translate(40px, -35px) scale(1.07); }
-  65%  { transform: translate(-20px, 45px) scale(0.93); }
-  100% { transform: translate(25px,  20px) scale(1.04); }
-}
-@keyframes moteDrift2 {
-  0%   { transform: translate(0,    0)     scale(1); }
-  40%  { transform: translate(-40px, 30px) scale(1.05); }
-  75%  { transform: translate(30px, -25px) scale(0.96); }
-  100% { transform: translate(-15px,-30px) scale(1.02); }
-}
-@keyframes moteDrift3 {
-  0%   { transform: translate(0, 0)       scale(1); }
-  50%  { transform: translate(30px, 40px) scale(0.94); }
-  100% { transform: translate(-25px,-20px) scale(1.06); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  30% {
+    transform: translate(40px, -35px) scale(1.07);
+  }
+
+  65% {
+    transform: translate(-20px, 45px) scale(0.93);
+  }
+
+  100% {
+    transform: translate(25px, 20px) scale(1.04);
+  }
 }
 
-/* ── Intro Centered Content ─────────────────────────────── */
+@keyframes moteDrift2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  40% {
+    transform: translate(-40px, 30px) scale(1.05);
+  }
+
+  75% {
+    transform: translate(30px, -25px) scale(0.96);
+  }
+
+  100% {
+    transform: translate(-15px, -30px) scale(1.02);
+  }
+}
+
+@keyframes moteDrift3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(30px, 40px) scale(0.94);
+  }
+
+  100% {
+    transform: translate(-25px, -20px) scale(1.06);
+  }
+}
+
 .intro-content {
   position: relative;
   z-index: 3;
@@ -337,16 +381,15 @@ a {
   gap: 0;
 }
 
-/* Small uppercase studio credit */
 .intro-eyebrow {
   font-family: var(--font-ui);
   font-size: 0.58rem;
   font-weight: 400;
-  letter-spacing: 0.55em;
+  letter-spacing: 0.6em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 1.6rem;
-  opacity: 0;  /* GSAP animates to 0.35 */
+  margin-bottom: 1.8rem;
+  opacity: 0;
 }
 
 .intro-title-block {
@@ -355,63 +398,144 @@ a {
   align-items: center;
 }
 
-/* The page's h1 — large, cinematic, tracking */
+/*
+ * Cinzel Decorative — more ornate, manuscript-like variant.
+ * Smaller size compensates for the heavier stroke weight.
+ * titleBreathe creates a near-invisible shadow pulse that evokes
+ * candlelight without any movement — purely atmospheric.
+ */
 .intro-logo {
-  font-family: var(--font-display);
-  font-size: clamp(3.2rem, 9vw, 6.5rem);
+  font-family: var(--font-gothic);
+  font-size: clamp(2.6rem, 7.5vw, 5.4rem);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-primary);
-  line-height: 1;
-  opacity: 0;  /* GSAP animates to 0.88 */
+  line-height: 1.1;
+  opacity: 0;
+  /* GSAP animates to 0.88 */
+  /*
+   * Layered text-shadow: aged manuscript feel.
+   * 1) Warm amber bloom beneath — like candlelight behind parchment.
+   * 2) Deep black offset — gives a pressed-ink, engraved quality.
+   * 3) No hard outlines or neon glow.
+   */
+  text-shadow:
+    0 2px 24px rgba(140, 106, 59, 0.18),
+    0 4px 80px rgba(140, 106, 59, 0.08),
+    0 1px 0 rgba(0, 0, 0, 0.9);
+  animation: titleBreathe 5s ease-in-out infinite;
+  /* animation runs from opacity:0 so the keyframe starts paused until GSAP reveals it */
 }
 
 /*
- * Decorative rule: grows from center outward on intro entrance,
- * collapses on CTA click. GSAP animates scaleX 0→1→0.
+ * KEY accent — the word "Key" inside the intro h1.
+ * Antique gold tint: noticeably warmer, not neon.
+ * A second, slightly wider shadow bloom makes it read as
+ * symbolically lit — as if candlelight falls on it alone.
  */
-.intro-rule {
-  width: 140px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(180, 140, 100, 0.5) 30%,
-    var(--accent-light) 50%,
-    rgba(180, 140, 100, 0.5) 70%,
-    transparent
-  );
-  margin: 1.6rem auto 2.4rem;
-  transform: scaleX(0);
-  transform-origin: center center;
-  opacity: 0;  /* GSAP animates to 1 */
+.intro-key-word {
+  color: #C9A97A;
+  /* antique tarnished gold — warm, aged, not bright */
+  text-shadow:
+    0 0 18px rgba(201, 169, 122, 0.28),
+    0 0 60px rgba(201, 169, 122, 0.12),
+    0 2px 0 rgba(0, 0, 0, 0.8);
+  /* Very slight letter spacing boost — creates visual pause on the word */
+  letter-spacing: 0.22em;
+  display: inline-block;
+  position: relative;
 }
 
 /*
- * CTA — deliberately anti-commercial.
- * No border. No background. No neon.
- * Italic serif text. Barely visible.
- * Hover: text brightens + thin underline grows.
- * This is a literary, psychological invitation.
+ * Candle-flicker: extremely subtle shadow-size breathing.
+ * Cycle is slow and irregular-feeling (prime-number-ish duration).
+ * The effect should be subliminal — felt, not seen.
+ */
+@keyframes titleBreathe {
+  0% {
+    text-shadow: 0 2px 24px rgba(140, 106, 59, 0.18), 0 4px 80px rgba(140, 106, 59, 0.08), 0 1px 0 rgba(0, 0, 0, 0.9);
+  }
+
+  38% {
+    text-shadow: 0 2px 32px rgba(140, 106, 59, 0.24), 0 4px 96px rgba(140, 106, 59, 0.12), 0 1px 0 rgba(0, 0, 0, 0.9);
+  }
+
+  61% {
+    text-shadow: 0 2px 20px rgba(140, 106, 59, 0.14), 0 4px 64px rgba(140, 106, 59, 0.06), 0 1px 0 rgba(0, 0, 0, 0.9);
+  }
+
+  100% {
+    text-shadow: 0 2px 24px rgba(140, 106, 59, 0.18), 0 4px 80px rgba(140, 106, 59, 0.08), 0 1px 0 rgba(0, 0, 0, 0.9);
+  }
+}
+
+.intro-rule {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(140, 106, 59, 0.45) 30%,
+      var(--accent-light) 50%,
+      rgba(140, 106, 59, 0.45) 70%,
+      transparent);
+  margin: 1.8rem auto 2.6rem;
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+}
+
+/*
+ * Intro CTA — "DO NOT ENTER"
+ *
+ * Design intent: a carved stone warning inside a cursed mansion.
+ *
+ * Background: #100F0C — the shadow-depth of "THE LAST" parchment tone
+ *   (#E8E0D0). Same warm grey family, collapsed to near-void darkness.
+ *   Like parchment left in a cold, lightless room for a century.
+ *
+ * Text: #C9A97A — the exact antique gold used on "KEY".
+ *   Reading the button text feels like reading a warning etched in gold
+ *   leaf on a locked estate door.
+ *
+ * Font: Cinzel (display) — uppercase, tracked wide. Not an invitation.
+ *   An inscription. A prohibition.
+ *
+ * Hover: the background darkens further, the gold border sharpens —
+ *   as if a hidden candle illuminates the warning from behind the stone.
+ *   No scaling. No neon. Only depth.
  */
 .intro-cta {
-  background: none;
-  /* Subtle amber border — makes the button clearly read as interactive */
-  border: 1px solid rgba(180, 140, 100, 0.35);
-  border-radius: 3px;
+  /* Deep shadow of the parchment/THE LAST tone — warm-black, not cold */
+  background: #100F0C;
+
+  /* Dim gold frame — visible but aged, not polished */
+  border: 1px solid rgba(201, 169, 122, 0.45);
+  border-radius: 1px;
+  /* nearly square — stone-cut, not rounded-modern */
   cursor: crosshair;
-  /* More padding so border frames the text properly */
-  padding: 0.85rem 2.2rem;
-  font-family: var(--font-body);
-  font-style: italic;
-  font-size: clamp(0.92rem, 1.7vw, 1.1rem);
-  /* Brighter default — clearly readable on the frame background */
-  color: rgba(232, 228, 223, 0.82);
-  letter-spacing: 0.14em;
+  padding: 0.95rem 2.8rem;
+
+  /* Cinzel uppercase — engraved warning, not a UI label */
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 600;
+  font-size: clamp(0.72rem, 1.3vw, 0.86rem);
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  /* wide tracking — like letters pressed into wax */
+
+  /* KEY gold — ominous, legible, symbolically charged */
+  color: #C9A97A;
+
   position: relative;
-  opacity: 0;   /* GSAP animates to 1 */
-  transition: color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+  opacity: 0;
+  /* GSAP animates to 1 */
+  transition:
+    background 0.55s ease,
+    border-color 0.55s ease,
+    color 0.55s ease,
+    box-shadow 0.55s ease;
 }
 
 .cta-inner {
@@ -419,59 +543,57 @@ a {
   display: inline-block;
 }
 
-/* Amber underline that grows from center on hover */
+/*
+ * Hairline underline — grows outward from center on hover.
+ * Feels like a crack appearing in old stone when you touch it.
+ */
 .cta-inner::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 1px;
-  background: var(--accent-light);
-  transition: width 0.6s var(--ease-out);
+  background: rgba(201, 169, 122, 0.55);
+  transition: width 0.65s var(--ease-out);
 }
 
 .intro-cta:hover {
-  color: rgba(232, 228, 223, 0.98);
-  border-color: rgba(180, 140, 100, 0.7);
-  /* Soft amber glow — cinematic highlight, not neon */
-  box-shadow: 0 0 22px rgba(180, 140, 100, 0.18), inset 0 0 18px rgba(180, 140, 100, 0.06);
+  /* Even darker — the warning recedes into shadow as you approach */
+  background: #0C0B08;
+  border-color: rgba(201, 169, 122, 0.75);
+  color: #DDB87A;
+  /* gold brightens slightly — like candlelight catching metal */
+  box-shadow:
+    0 0 40px rgba(140, 106, 59, 0.12),
+    /* faint outer haze */
+    inset 0 0 20px rgba(100, 80, 40, 0.08);
+  /* dim inward ember */
 }
+
 .intro-cta:hover .cta-inner::after {
-  width: 100%;
+  width: 70%;
 }
+
 .intro-cta:focus-visible {
-  outline: 1px solid rgba(180, 140, 100, 0.6);
-  outline-offset: 8px;
-  border-radius: 3px;
+  outline: 1px solid rgba(201, 169, 122, 0.55);
+  outline-offset: 6px;
+  border-radius: 1px;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   CINEMATIC PLAYBACK LAYER  (#cinematicLayer)
-
-   Fixed fullscreen, z-index 400. Contains the frame canvas
-   and a full-black overlay for fade-in / fade-out control.
-   Both start invisible; GSAP reveals them.
-   ═══════════════════════════════════════════════════════════ */
+/* ──────────────────────────────────────────────────────────
+   CINEMATIC PLAYBACK LAYER
+   ────────────────────────────────────────────────────────── */
 #cinematicLayer {
   position: fixed;
   inset: 0;
   z-index: 400;
   background: #000;
-  /*
-   * opacity: 1 — always visible so frame 0 acts as the intro background.
-   * GSAP fades this out after the cinematic ends.
-   */
   opacity: 1;
   pointer-events: none;
 }
 
-/*
- * Frame canvas — renders ImageBitmaps each GSAP ticker tick.
- * will-change: transform → own GPU compositing layer → zero repaint
- * cost from the overlay or other elements changing on top of it.
- */
 #frameCanvas {
   position: absolute;
   inset: 0;
@@ -480,59 +602,17 @@ a {
   will-change: transform;
 }
 
-/*
- * Full-black overlay for cinematic fade in/out.
- * Starts at opacity:1 (fully opaque = frames hidden).
- * GSAP fades to 0 (frames visible) then back to 1 at end.
- */
 #cinematicOverlay {
   position: absolute;
   inset: 0;
   background: #000;
   z-index: 10;
   pointer-events: none;
-  /* opacity managed entirely by GSAP */
 }
 
-/* ═══════════════════════════════════════════════════════════
-   SCROLL INDICATOR
-   ═══════════════════════════════════════════════════════════ */
-.scroll-indicator {
-  position: fixed;
-  bottom: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  text-align: center;
-  font-family: var(--font-ui);
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  transition: opacity 0.5s var(--ease-smooth);
-}
-.scroll-indicator.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-.scroll-arrow {
-  margin-top: 0.5rem;
-  animation: bobArrow 1.8s ease-in-out infinite;
-}
-.scroll-arrow svg {
-  stroke: var(--accent);
-  opacity: 0.6;
-  margin: 0 auto;
-}
-@keyframes bobArrow {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(6px); }
-}
-
-/* ═══════════════════════════════════════════════════════════
+/* ──────────────────────────────────────────────────────────
    AUDIO TOGGLE
-   ═══════════════════════════════════════════════════════════ */
+   ────────────────────────────────────────────────────────── */
 .audio-toggle {
   position: fixed;
   bottom: 2rem;
@@ -541,8 +621,8 @@ a {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(180,140,100,0.2);
-  background: rgba(5,5,6,0.75);
+  border: 1px solid rgba(140, 106, 59, 0.2);
+  background: rgba(5, 5, 5, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
@@ -552,12 +632,14 @@ a {
   transition: all 0.4s var(--ease-smooth);
   padding: 0;
 }
+
 .audio-toggle:hover {
   border-color: var(--accent);
-  background: rgba(18,18,22,0.9);
+  background: rgba(18, 18, 18, 0.95);
   box-shadow: 0 0 20px var(--accent-glow);
   transform: scale(1.08);
 }
+
 .audio-toggle.hidden {
   opacity: 0;
   pointer-events: none;
@@ -567,381 +649,1185 @@ a {
   stroke: var(--accent-light);
   transition: opacity 0.3s;
 }
-.audio-toggle .audio-on  { display: none; }
-.audio-toggle .audio-off { display: block; }
-.audio-toggle.playing .audio-on  { display: block; }
-.audio-toggle.playing .audio-off { display: none; }
+
+.audio-toggle .audio-on {
+  display: none;
+}
+
+.audio-toggle .audio-off {
+  display: block;
+}
+
+.audio-toggle.playing .audio-on {
+  display: block;
+}
+
+.audio-toggle.playing .audio-off {
+  display: none;
+}
 
 @keyframes audioPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(180,140,100,0); }
-  50%      { box-shadow: 0 0 0 8px rgba(180,140,100,0.12); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(140, 106, 59, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(140, 106, 59, 0.1);
+  }
 }
+
 .audio-toggle.playing {
   animation: audioPulse 3s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CONTENT SECTIONS  (State 4 — post-cinematic website)
+   HERO SMOKE REVEAL LAYER
+   Fixed overlay, visible only during the entrance sequence.
+   GSAP removes it after the reveal completes.
+   ═══════════════════════════════════════════════════════════ */
+#heroSmokeLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 65;          /* above #contentSections (60), below audio toggle (900) */
+  pointer-events: none;
+  overflow: hidden;
+  /* Starts visible; GSAP fades it out after the scene materialises */
+}
+
+#heroSmokeCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Canvas opacity controlled by GSAP during exit */
+}
+
+/* ── Fog panels ──────────────────────────────────────────────
+   Four overlapping radial blobs each drifting on their own
+   CSS animation cycle. The SVG blur filter makes them feel
+   genuinely volumetric — not flat gradients.
+   ─────────────────────────────────────────────────────────── */
+.hero-fog {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero-fog-1 {
+  width: 120vw; height: 110vh;
+  top: -15vh; left: -18vw;
+  background: radial-gradient(
+    ellipse at 42% 52%,
+    rgba(3, 2, 2, 0.97) 0%,
+    rgba(5, 4, 3, 0.88) 28%,
+    rgba(8, 6, 5, 0.52) 58%,
+    transparent 84%
+  );
+  filter: url(#smokeBlur);
+  animation: hFog1 15s ease-in-out infinite alternate;
+}
+.hero-fog-2 {
+  width: 95vw; height: 130vh;
+  top: 0vh; right: -22vw;
+  background: radial-gradient(
+    ellipse at 58% 42%,
+    rgba(2, 2, 2, 0.93) 0%,
+    rgba(4, 3, 2, 0.76) 32%,
+    rgba(7, 5, 4, 0.40) 62%,
+    transparent 86%
+  );
+  filter: url(#smokeBlur);
+  animation: hFog2 19s ease-in-out infinite alternate;
+  animation-delay: -7s;
+}
+.hero-fog-3 {
+  width: 85vw; height: 90vh;
+  bottom: -12vh; left: 8vw;
+  background: radial-gradient(
+    ellipse at 50% 62%,
+    rgba(4, 3, 2, 0.90) 0%,
+    rgba(6, 5, 3, 0.68) 38%,
+    rgba(9, 7, 6, 0.33) 68%,
+    transparent 90%
+  );
+  filter: url(#smokeBlur);
+  animation: hFog3 23s ease-in-out infinite alternate;
+  animation-delay: -14s;
+}
+.hero-fog-4 {
+  /* Centre column — primary "curtain" parting to reveal the portrait */
+  width: 65vw; height: 140vh;
+  top: -20vh; left: 17vw;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(2, 1, 1, 0.95) 0%,
+    rgba(4, 3, 2, 0.72) 38%,
+    rgba(6, 5, 3, 0.32) 68%,
+    transparent 90%
+  );
+  filter: url(#smokeBlur);
+  animation: hFog4 17s ease-in-out infinite alternate;
+  animation-delay: -4s;
+}
+
+/* Slow organic drift — prime-number-ish durations feel non-repeating */
+@keyframes hFog1 {
+  0%   { transform: translate(0,    0)    scale(1.00); }
+  30%  { transform: translate(22px,-16px) scale(1.03); }
+  65%  { transform: translate(-14px,20px) scale(0.98); }
+  100% { transform: translate(16px, 9px)  scale(1.02); }
+}
+@keyframes hFog2 {
+  0%   { transform: translate(0,     0)    scale(1.00); }
+  38%  { transform: translate(-28px, 18px) scale(1.04); }
+  72%  { transform: translate(20px, -24px) scale(0.97); }
+  100% { transform: translate(-10px, 13px) scale(1.02); }
+}
+@keyframes hFog3 {
+  0%   { transform: translate(0,    0)     scale(1.00); }
+  42%  { transform: translate(18px, 26px)  scale(1.05); }
+  76%  { transform: translate(-22px,-12px) scale(0.96); }
+  100% { transform: translate(8px, -18px)  scale(1.01); }
+}
+@keyframes hFog4 {
+  0%   { transform: translate(0,    0)    scale(1.00); }
+  33%  { transform: translate(12px, 22px) scale(1.03); }
+  68%  { transform: translate(-16px,-10px) scale(0.97); }
+  100% { transform: translate(6px,  15px) scale(1.02); }
+}
+
+/* ── Darkness veil ───────────────────────────────────────────
+   Sits above the fog panels (z:10). Starts fully opaque.
+   GSAP lifts it first — before smoke and content appear.
+   ─────────────────────────────────────────────────────────── */
+#heroDarknessVeil {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #050505;   /* matches --bg-void exactly */
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTENT SECTIONS (State 4 — post-cinematic website)
    ═══════════════════════════════════════════════════════════ */
 #contentSections {
   position: relative;
   z-index: 60;
-  background: var(--bg-deep);
-  opacity: 0;  /* GSAP fades to 1 when website state begins */
+  background: var(--bg-void);
+  opacity: 0;
 }
 
+/* ──────────────────────────────────────────────────────────
+   SHARED SECTION PRIMITIVES
+   ────────────────────────────────────────────────────────── */
 .content-section {
   padding: var(--space-xl) var(--space-md);
-  min-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .section-inner {
-  max-width: 1100px;
+  max-width: 1160px;
   width: 100%;
   margin: 0 auto;
 }
-.section-inner.center { text-align: center; }
 
-/* Eyebrow */
-.section-eyebrow {
-  font-family: var(--font-ui);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: var(--space-sm);
-}
-
-/* Titles */
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4.5vw, 3rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.04em;
-  color: var(--text-primary);
-  margin-bottom: var(--space-md);
-}
-.section-title.center { text-align: center; }
-
-.section-text {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
-  max-width: 640px;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   HERO SECTION
-   ═══════════════════════════════════════════════════════════ */
-.hero-section {
-  min-height: 100vh;
-  text-align: center;
-  flex-direction: column;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(180,140,100,0.06) 0%, transparent 60%),
-    var(--bg-deep);
-}
-.hero-section .section-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* hero-title is now an h2 (h1 is intro-logo) — styles unchanged */
-.hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 7vw, 5rem);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-  margin-bottom: var(--space-md);
-}
-.hero-title .line  { display: block; }
-.hero-title .accent {
-  background: linear-gradient(135deg, var(--accent-light), var(--accent), #8b6b42);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero-subtitle {
-  font-size: clamp(1rem, 2.2vw, 1.3rem);
-  color: var(--text-secondary);
-  max-width: 600px;
+.section-header {
   margin-bottom: var(--space-lg);
 }
 
-.hero-cta {
-  display: flex;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-  justify-content: center;
+.section-header.center {
+  text-align: center;
 }
 
-/* Buttons */
+.section-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.section-subtitle {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.9;
+}
+
+/* ──────────────────────────────────────────────────────────
+   GLOBAL BUTTONS
+   ────────────────────────────────────────────────────────── */
 .btn {
   font-family: var(--font-ui);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 0.9em 2.2em;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.35s var(--ease-smooth);
   display: inline-block;
+  transition: all 0.38s var(--ease-smooth);
 }
+
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #8b6b42);
-  color: #fff;
-  border-color: var(--accent);
-}
-.btn-primary:hover {
-  box-shadow: 0 0 30px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4);
-  transform: translateY(-2px);
-}
-.btn-ghost {
   background: transparent;
-  color: var(--text-secondary);
-  border-color: rgba(255,255,255,0.12);
-}
-.btn-ghost:hover {
-  border-color: var(--accent);
   color: var(--accent-light);
-}
-.btn-lg {
-  padding: 1.1em 3em;
-  font-size: 0.95rem;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   SECTION DIVIDER
-   ═══════════════════════════════════════════════════════════ */
-.section-divider {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-.section-divider svg { width: 100%; height: 60px; }
-
-/* ═══════════════════════════════════════════════════════════
-   TWO-COLUMN LAYOUT
-   ═══════════════════════════════════════════════════════════ */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-  align-items: center;
-}
-@media (max-width: 768px) {
-  .two-col { grid-template-columns: 1fr; }
-}
-
-/* Lore card */
-.lore-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(180,140,100,0.15);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
+  border-color: var(--accent);
   position: relative;
   overflow: hidden;
 }
-.lore-card::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.6s;
-}
-.lore-card:hover::before { opacity: 1; }
 
-.lore-card-inner { position: relative; z-index: 1; }
-.lore-icon { font-size: 2.5rem; margin-bottom: var(--space-sm); }
-.lore-card blockquote {
-  font-family: var(--font-body);
-  font-size: 1.15rem;
-  font-style: italic;
-  color: var(--text-primary);
-  line-height: 1.8;
-  margin-bottom: var(--space-sm);
-}
-.lore-card cite {
-  font-family: var(--font-ui);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-style: normal;
-  letter-spacing: 0.06em;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   FEATURES GRID
-   ═══════════════════════════════════════════════════════════ */
-.dark-section {
-  background:
-    radial-gradient(ellipse at 30% 80%, rgba(139,58,58,0.06) 0%, transparent 50%),
-    var(--bg-section);
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-
-.feature-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  transition: all 0.4s var(--ease-smooth);
-  position: relative;
-  overflow: hidden;
-}
-.feature-card::after {
+.btn-primary::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(180,140,100,0.08), transparent 60%);
+  background: linear-gradient(135deg, rgba(140, 106, 59, 0.18), rgba(140, 106, 59, 0.06));
   opacity: 0;
-  transition: opacity 0.4s;
+  transition: opacity 0.38s;
 }
-.feature-card:hover {
-  border-color: rgba(180,140,100,0.2);
-  transform: translateY(-4px);
-  background: var(--bg-card-hover);
-}
-.feature-card:hover::after { opacity: 1; }
 
-.feature-icon { font-size: 2rem; margin-bottom: var(--space-sm); position: relative; z-index: 1; }
-.feature-card h3 {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.btn-primary:hover {
+  border-color: var(--accent-light);
   color: var(--text-primary);
-  position: relative;
-  z-index: 1;
+  box-shadow: 0 0 32px rgba(140, 106, 59, 0.18), 0 4px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
 }
-.feature-card p {
-  font-size: 0.95rem;
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent-border-hover);
+  color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+/* ══════════════════════════════════════════════════════════
+   HERO SECTION
+   ══════════════════════════════════════════════════════════ */
+.hero-section {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 70% 40%, rgba(140, 106, 59, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 15% 80%, rgba(8, 8, 8, 0.6) 0%, transparent 50%),
+    var(--bg-void);
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+  min-height: 80vh;
+}
+
+/* Text column */
+.hero-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+  margin-top: var(--space-xs);
+}
+
+.hero-title-line {
+  display: block;
   color: var(--text-secondary);
+  font-size: 0.55em;
+  letter-spacing: 0.2em;
+  font-weight: 400;
+  text-transform: uppercase;
+  margin-bottom: 0.2em;
+}
+
+.hero-title-accent {
+  display: block;
+  color: var(--text-primary);
+  font-size: 1em;
+  letter-spacing: 0.06em;
+}
+
+.hero-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: var(--accent-light);
+  margin-bottom: var(--space-sm);
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+}
+
+.hero-desc {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.9;
+  /* No CTA below — allow space to breathe into the portrait */
+  margin-bottom: 0;
+}
+
+/*
+ * KEY accent inside the post-cinematic hero title.
+ * Matches the intro treatment: antique gold, subtle glow.
+ * Inherits font from .hero-title-accent (Cinzel, large).
+ */
+.hero-key-word {
+  color: #C9A97A;
+  text-shadow:
+    0 0 16px rgba(201, 169, 122, 0.22),
+    0 0 48px rgba(201, 169, 122, 0.09);
+  display: inline;
+}
+
+/* hero-cta-group is removed from the hero section.
+   The hero is cinematic and distraction-free. */
+
+
+/* Portrait column */
+.hero-portrait-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.portrait-placeholder {
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 3 / 4;
+  position: relative;
+  background: linear-gradient(180deg,
+      #0c0c0c 0%,
+      #080808 50%,
+      var(--bg-void) 100%);
+  border: 1px solid rgba(140, 106, 59, 0.1);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Atmospheric shadow framing — blooms inward from edges */
+.portrait-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, transparent 30%, rgba(0, 0, 0, 0.9) 80%),
+    radial-gradient(ellipse at 50% 100%, transparent 30%, rgba(0, 0, 0, 0.95) 80%),
+    radial-gradient(ellipse at 0% 50%, transparent 20%, rgba(0, 0, 0, 0.85) 80%),
+    radial-gradient(ellipse at 100% 50%, transparent 20%, rgba(0, 0, 0, 0.85) 80%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.portrait-frame-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  box-shadow:
+    0 0 60px rgba(140, 106, 59, 0.06),
+    0 0 120px rgba(0, 0, 0, 0.8),
+    inset 0 0 40px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.portrait-inner {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.portrait-label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.portrait-hint {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.7rem;
+  color: rgba(139, 139, 139, 0.35);
+  letter-spacing: 0.05em;
+}
+
+/* Portrait painting — fills the container */
+.portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  z-index: 1;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* SVG eye overlay — covers the full portrait, pointer-events disabled */
+.portrait-eye-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/*
+ * Eye socket shadow ellipses — deep black, starts at opacity 0.
+ * JS drives opacity toward ~0.55 as cursor approaches.
+ * mix-blend-mode: multiply darkens the already-dark socket,
+ * creating a volumetric void that deepens with proximity.
+ */
+.eye-socket-shadow {
+  fill: #000;
+  opacity: 0;
+  /* No transition here — JS lerps each frame for smoothness */
+}
+
+/*
+ * Ghostly pale pupils — cold white, faint.
+ * Starts invisible; fades in as cursor approaches.
+ * The transform is driven by JS (translate in SVG units).
+ * filter: blur gives a soft spectral quality —
+ * not sharp supernatural, but a faint smear of cold light.
+ */
+.eye-pupil {
+  fill: rgba(230, 225, 215, 0.72);
+  /* aged parchment white — cold, not bright */
+  opacity: 0;
+  filter: blur(0.4px);
+  /* will-change: transform keeps pupil movement off the main layer */
+  will-change: transform;
+}
+
+/*
+ * Proximity vignette — radial darkener centred on the eye region.
+ * Layered on top of the image (z-index 4, below the SVG overlay).
+ * JS drives opacity: 0 → 0.7 as cursor nears the portrait centre.
+ */
+.portrait-proximity-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 40% at 50% 28%,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.82) 100%);
+  opacity: 0;
+  /* No CSS transition — JS animates each RAF frame for silky feel */
+}
+
+/* ══════════════════════════════════════════════════════════
+   ABOUT SECTION
+   ══════════════════════════════════════════════════════════ */
+.about-section {
+  background:
+    linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 50%, var(--bg-void) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Decorative horizontal rule below section title */
+.about-section .section-header::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  margin: var(--space-sm) auto 0;
+}
+
+.about-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.about-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-md) calc(var(--space-md) * 1.4);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.5s var(--ease-slow), transform 0.5s var(--ease-slow), background 0.5s;
+}
+
+/* Subtle ambient glow on hover */
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 106, 59, 0.12) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-slow);
+  pointer-events: none;
+}
+
+/* Top border accent line */
+.about-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.about-card:hover {
+  border-color: var(--accent-border-hover);
+  background: var(--bg-card-hover);
+  transform: translateY(-6px);
+}
+
+.about-card:hover::before {
+  opacity: 1;
+}
+
+.about-card:hover::after {
+  opacity: 1;
+}
+
+.about-card-glyph {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  opacity: 0.6;
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
+.about-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+  line-height: 1.3;
+}
+
+.about-card-text {
+  font-family: var(--font-serif);
+  font-size: clamp(0.9rem, 1.4vw, 1rem);
+  color: var(--text-secondary);
+  line-height: 1.85;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SCREENSHOTS SECTION
+   ══════════════════════════════════════════════════════════ */
+.screenshots-section {
+  background: var(--bg-void);
+  border-top: 1px solid rgba(255, 255, 255, 0.025);
+}
+
+.screenshots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .screenshots-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.screenshot-card {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.45s var(--ease-slow);
+}
+
+.screenshot-card:hover {
+  border-color: var(--accent-border-hover);
+}
+
+.screenshot-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Hover zoom effect */
+.screenshot-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(140, 106, 59, 0.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.45s;
+}
+
+.screenshot-card:hover .screenshot-inner::after {
+  opacity: 1;
+}
+
+.screenshot-placeholder {
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(135deg, #0e0e0e 0%, #0a0a0a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  transition: transform 0.6s var(--ease-slow);
+}
+
+.screenshot-card:hover .screenshot-placeholder {
+  transform: scale(1.03);
+}
+
+.screenshot-number {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: rgba(140, 106, 59, 0.18);
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.screenshot-label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ATMOSPHERE SECTION
+   ══════════════════════════════════════════════════════════ */
+.atmosphere-section {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(140, 106, 59, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(8, 8, 8, 0.8) 0%, transparent 60%),
+    var(--bg-deep);
+  border-top: 1px solid rgba(255, 255, 255, 0.025);
+}
+
+.atmosphere-cards {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .atmosphere-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.atmosphere-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg) var(--space-md);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.5s var(--ease-slow), transform 0.5s var(--ease-slow);
+}
+
+.atmosphere-card--center {
+  padding-top: calc(var(--space-lg) * 1.4);
+  padding-bottom: calc(var(--space-lg) * 1.4);
+  border-color: rgba(140, 106, 59, 0.1);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(140, 106, 59, 0.05) 0%, transparent 60%),
+    var(--bg-card);
+}
+
+.atmosphere-card:hover {
+  border-color: var(--accent-border-hover);
+  transform: translateY(-4px);
+}
+
+.atmosphere-card--center:hover {
+  transform: translateY(-6px);
+}
+
+.atmo-card-inner {
   position: relative;
   z-index: 1;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   STATS ROW
-   ═══════════════════════════════════════════════════════════ */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-  text-align: center;
-}
-.stat { padding: var(--space-md); }
-.stat-number {
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-weight: 900;
-  color: var(--accent-light);
-  display: block;
-  line-height: 1;
-  margin-bottom: 0.5rem;
-}
-.stat-label {
+.atmo-eyebrow {
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: 0.58rem;
   font-weight: 400;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.75;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.atmo-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  line-height: 1.2;
+}
+
+.atmo-text {
+  font-family: var(--font-serif);
+  font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+  color: var(--text-secondary);
+  line-height: 1.9;
+  font-style: italic;
+}
+
+.atmo-rule {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  margin-top: var(--space-md);
+  opacity: 0.5;
+}
+
+/* ══════════════════════════════════════════════════════════
+   DEVELOPER SECTION
+   ══════════════════════════════════════════════════════════ */
+.developer-section {
+  background: var(--bg-void);
+  border-top: 1px solid rgba(255, 255, 255, 0.025);
+}
+
+.developer-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-xl);
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .developer-inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+}
+
+.developer-studio {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--accent-light);
+  margin-bottom: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.developer-desc {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.85;
+  font-style: italic;
+}
+
+.developer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dev-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
+  transition: color 0.35s, transform 0.35s var(--ease-slow);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   FOOTER
-   ═══════════════════════════════════════════════════════════ */
-.footer-section {
+.dev-link:hover {
+  color: var(--accent-light);
+  transform: translateX(4px);
+}
+
+.dev-link-icon {
+  font-size: 0.5rem;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.dev-link:hover .dev-link-icon {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FINAL DOWNLOAD SECTION
+   ══════════════════════════════════════════════════════════ */
+.download-section {
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(180,140,100,0.05) 0%, transparent 50%),
-    var(--bg-deep);
+    radial-gradient(ellipse at 50% 40%, rgba(140, 106, 59, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(12, 12, 12, 0.8) 0%, transparent 50%),
+    var(--bg-void);
+  border-top: 1px solid rgba(255, 255, 255, 0.025);
+  flex-direction: column;
   padding-bottom: var(--space-xxl);
+  overflow: hidden;
 }
-.footer-text {
+
+.download-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 300px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(140, 106, 59, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.download-inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.download-eyebrow-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(180deg, transparent, var(--accent));
   margin: 0 auto var(--space-md);
-  max-width: 480px;
+  opacity: 0.4;
 }
+
+.download-eyebrow {
+  margin-bottom: var(--space-sm);
+}
+
+.download-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1.05;
+  margin-bottom: var(--space-sm);
+}
+
+.download-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-xl);
+}
+
+/* Large cinematic download button */
+.btn-download {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  padding: 1.1rem 4rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent-light);
+  overflow: hidden;
+  transition: color 0.45s, border-color 0.45s, transform 0.45s var(--ease-slow), box-shadow 0.45s;
+  margin-bottom: var(--space-xl);
+}
+
+.btn-download::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(140, 106, 59, 0.16) 0%, rgba(140, 106, 59, 0.04) 100%);
+  opacity: 0;
+  transition: opacity 0.45s;
+}
+
+.btn-download:hover::before {
+  opacity: 1;
+}
+
+.btn-download:hover {
+  border-color: var(--accent-light);
+  color: var(--text-primary);
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 50px rgba(140, 106, 59, 0.16),
+    0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.btn-download-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Platform / version / size metadata */
+.download-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.download-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.meta-label {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.meta-value {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.download-meta-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
 .copyright {
   font-family: var(--font-ui);
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  margin-top: var(--space-xl);
-  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-top: var(--space-lg);
+  opacity: 0.6;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   GSAP REVEAL — initial hidden states for content sections
-   GSAP animates these to opacity:1, y:0 on scroll.
-   ═══════════════════════════════════════════════════════════ */
-.content-section .section-eyebrow,
-.content-section .section-title,
-.content-section .section-text,
-.content-section .hero-title,
-.content-section .hero-subtitle,
-.content-section .hero-cta,
-.feature-card,
-.lore-card,
-.stat,
-.btn-lg {
+/* ══════════════════════════════════════════════════════════
+   GSAP REVEAL — initial hidden states for scroll animations
+   GSAP animates opacity: 0 → 1 and translateY(40px) → 0
+   ══════════════════════════════════════════════════════════ */
+.hero-text-col .section-eyebrow,
+.hero-title,
+.hero-tagline,
+.hero-desc,
+.portrait-placeholder,
+.section-header,
+.about-card,
+.screenshot-card,
+.atmosphere-card,
+.developer-text,
+.developer-links,
+.download-eyebrow-line,
+.download-eyebrow,
+.download-title,
+.download-tagline,
+.download-meta,
+.copyright {
   opacity: 0;
   transform: translateY(40px);
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* Portrait has a lighter rise */
+.portrait-placeholder {
+  transform: translateY(28px);
+}
+
+/* Download section vertical line starts collapsed */
+.download-eyebrow-line {
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+/* ══════════════════════════════════════════════════════════
    RESPONSIVE
-   ═══════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-  .intro-logo {
-    font-size: clamp(2.8rem, 12vw, 4rem);
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    min-height: unset;
   }
-  .intro-eyebrow {
-    letter-spacing: 0.4em;
+
+  .hero-text-col {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-desc {
+    max-width: 560px;
+  }
+
+  /* .hero-cta-group removed — hero is CTA-free */
+  .hero-portrait-col {
+    order: -1;
+  }
+
+  .portrait-placeholder {
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-section {
+    padding: var(--space-lg) var(--space-sm);
+  }
+
+  .about-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .atmosphere-cards {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .content-section {
-    padding: var(--space-lg) var(--space-sm);
+  .intro-logo {
+    font-size: clamp(2.6rem, 12vw, 3.8rem);
   }
+
   .hero-title {
+    font-size: clamp(2.2rem, 10vw, 3rem);
+  }
+
+  .download-title {
     font-size: clamp(2rem, 10vw, 3rem);
   }
-  .intro-cta {
-    font-size: 0.82rem;
-    letter-spacing: 0.08em;
+
+  .btn-download {
+    padding: 1rem 2.5rem;
+  }
+
+  .download-meta {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .download-meta-divider {
+    display: none;
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════
    REDUCED MOTION
-   When prefers-reduced-motion is set, all CSS animations stop.
-   JS also detects this and skips the cinematic entirely.
-   ═══════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .mote-1, .mote-2, .mote-3 { animation: none; }
-  .scroll-arrow { animation: none; }
-  .preloader-ring { animation: none; }
-  .preloader-eye  { animation: none; }
-  .audio-toggle.playing { animation: none; }
+
+  .mote-1,
+  .mote-2,
+  .mote-3 {
+    animation: none;
+  }
+
+  .preloader-ring {
+    animation: none;
+  }
+
+  .preloader-eye {
+    animation: none;
+  }
+
+  .audio-toggle.playing {
+    animation: none;
+  }
 }
