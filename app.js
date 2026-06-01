@@ -1047,154 +1047,243 @@
      PORTRAIT EYE TRACKING
 
      Architecture:
-       • One shared RAF loop drives all interpolation.
-       • Cursor raw position is smoothed via lerp each frame (lag = 0.07).
-       • Proximity is computed from cursor distance to the portrait rect
-         centre (eye region). Normalised 0–1 where 1 = very close.
-       • Pupil SVG offset is limited to ±MAX_DRIFT SVG units (small).
-       • Opacity values for shadows/vignette/pupils are lerped separately
-         so they fade out slowly when cursor leaves.
-       • No GSAP: pure RAF for full control and minimal overhead.
+       • Both eyes move as a SINGLE RIGID PAIR — same delta, same direction.
+       • A shared (dx, dy) offset is computed once from the cursor to the
+         midpoint between both eyes, then applied identically to each pupil.
+       • Eyes never cross inward; the natural inter-eye spacing is preserved.
+       • Cursor position is smoothed with a slow lag lerp (CURSOR_LAG).
+       • The computed pair offset is additionally smoothed with an even
+         slower settling lerp (EYE_LAG) for a second "glide" stage.
+       • Proximity gates opacity (shadows / vignette / pupils) — lerped
+         independently so effects fade out slowly when the cursor leaves.
+       • No GSAP: pure RAF for minimal overhead and full control.
+
+     POSITIONING GUIDE — edit values below freely:
+       Increase LEFT_EYE_X  → left pupil moves right  (Increase X to move right)
+       Decrease LEFT_EYE_X  → left pupil moves left   (Decrease X to move left)
+       Increase LEFT_EYE_Y  → left pupil moves down   (Increase Y to move down)
+       Decrease LEFT_EYE_Y  → left pupil moves up     (Decrease Y to move up)
+       (Same rules apply to RIGHT_EYE_X / RIGHT_EYE_Y)
+
+     DEBUG MODE:
+       Set DEBUG_EYES = true to render visible crosshair markers on each
+       eye anchor position. Disable (false) for production.
      ═══════════════════════════════════════════════════════════════════ */
 
   const PortraitEyes = (function () {
 
-    /* Eye anchor positions in SVG viewBox units (0–100) */
+    /* ── DEBUG ──────────────────────────────────────────────────────────
+       Set true during development to see eye anchor markers.
+       Set false for production — no markers, no console noise.
+       ──────────────────────────────────────────────────────────────── */
+    const DEBUG_EYES = false;
+
+    /* ── EYE ANCHOR CONFIGURATION ───────────────────────────────────────
+       Positions are expressed as a percentage (0–100) of the portrait's
+       rendered width (X) and height (Y), matching the SVG viewBox scale.
+
+       LEFT_EYE_X  — horizontal centre of the left pupil anchor
+                     Increase X to move right | Decrease X to move left
+       LEFT_EYE_Y  — vertical centre of the left pupil anchor
+                     Increase Y to move down  | Decrease Y to move up
+
+       RIGHT_EYE_X — horizontal centre of the right pupil anchor
+                     Increase X to move right | Decrease X to move left
+       RIGHT_EYE_Y — vertical centre of the right pupil anchor
+                     Increase Y to move down  | Decrease Y to move up
+       ──────────────────────────────────────────────────────────────── */
+    const LEFT_EYE_X = 50.0;   // % of portrait width  (Increase → right, Decrease → left)
+    const LEFT_EYE_Y = 25;   // % of portrait height (Increase → down,  Decrease → up)
+    const RIGHT_EYE_X = 61.5;   // % of portrait width  (Increase → right, Decrease → left)
+    const RIGHT_EYE_Y = 25;   // % of portrait height (Increase → down,  Decrease → up)
+
+    /* ── MOVEMENT RANGE ────────────────────────────────────────────────
+       Pixel limits for the shared eye-pair shift.
+       These are converted to SVG units at runtime using the portrait's
+       rendered pixel width, so they are resolution-independent.
+
+       H_MAX_PX — maximum horizontal shift in px (both eyes together)
+       V_MAX_PX — maximum vertical shift in px   (both eyes together)
+       ──────────────────────────────────────────────────────────────── */
+    const H_MAX_PX = 4;   // horizontal max: 4–8 px recommended
+    const V_MAX_PX = 3;   // vertical max: smaller than horizontal
+
+    /* ── SMOOTHING ──────────────────────────────────────────────────────
+       CURSOR_LAG — lerp factor for raw → smooth cursor position.
+                    Lower = more lag, more organic. Range: 0.04–0.12.
+       EYE_LAG    — secondary lerp on the computed pair offset.
+                    Adds a second "settling glide" after the cursor moves.
+                    Lower = more glide. Range: 0.03–0.08.
+       OPACITY_LAG— lerp factor for proximity-driven opacity effects.
+       ──────────────────────────────────────────────────────────────── */
+    const CURSOR_LAG = 0.055;  // cursor smooth-follow (lower = more lag)
+    const EYE_LAG = 0.040;  // pair-offset settling glide
+    const OPACITY_LAG = 0.038;  // opacity fade speed
+
+    /* ── PROXIMITY THRESHOLDS ───────────────────────────────────────────
+       PROX_FAR  — px from eye midpoint beyond which no effect occurs.
+       PROX_NEAR — px from eye midpoint at which effect is at full strength.
+       ──────────────────────────────────────────────────────────────── */
+    const PROX_FAR = 520;
+    const PROX_NEAR = 60;
+
+    /* ── PEAK OPACITY INTENSITIES ───────────────────────────────────── */
+    const SHADOW_MAX_OPACITY = 0.50;
+    const VIGNETTE_MAX_OPACITY = 0.38;
+    const PUPIL_MAX_OPACITY = 0.78;
+
+    /* ── Internal eye descriptors (populated in init) ─────────────────
+       Each entry holds references to the SVG pupil group and shadow
+       element, plus the anchor coords (from the config above).
+       ──────────────────────────────────────────────────────────────── */
     const EYES = [
-      { el: null, shadowEl: null, cx: 37, cy: 28.5 },  // left eye
-      { el: null, shadowEl: null, cx: 61.5, cy: 28.5 },  // right eye
+      { el: null, shadowEl: null, cx: LEFT_EYE_X, cy: LEFT_EYE_Y },
+      { el: null, shadowEl: null, cx: RIGHT_EYE_X, cy: RIGHT_EYE_Y },
     ];
-
-    /*
-     * MAX_DRIFT — maximum pupil offset in SVG viewBox units.
-     * The viewBox is 0-100, portrait is ~480px wide.
-     * 1 unit ≈ 4.8px. At 1.6 units ≈ 7.7px — imperceptible from afar,
-     * deeply unsettling up close.
-     */
-    const MAX_DRIFT = 1.6;
-
-    /* Lag factor — lower = more lag (more organic, less responsive) */
-    const CURSOR_LAG = 0.072;
-    const OPACITY_LAG = 0.038;
-
-    /* Proximity thresholds (px from portrait eye-region centre) */
-    const PROX_FAR = 520;  // beyond this → no effect
-    const PROX_NEAR = 60;   // at this distance → full intensity
-
-    /* Peak intensities */
-    const SHADOW_MAX_OPACITY = 0.50;  /* socket darkening cap */
-    const VIGNETTE_MAX_OPACITY = 0.38; /* proximity vignette cap */
-    const PUPIL_MAX_OPACITY = 0.78;  /* pupil visibility cap */
 
     let vignetteEl = null;
     let rafId = null;
     let initialized = false;
 
-    /* Smooth cursor position (lerped) */
+    /* Raw cursor position */
     let cursorX = window.innerWidth / 2;
     let cursorY = window.innerHeight / 2;
+
+    /* Smoothed cursor position (stage 1 lerp) */
     let smoothX = cursorX;
     let smoothY = cursorY;
 
-    /* Current lerped opacity states */
+    /* Shared pair offset — settled via a second lerp (stage 2) */
+    const pairOffset = { x: 0, y: 0 };  // in SVG viewBox units
+    let targetPairX = 0;
+    let targetPairY = 0;
+
+    /* Lerped opacity states */
     let shadowOpacity = 0;
     let vignetteOpacity = 0;
     let pupilOpacity = 0;
 
-    /* Current pupil offsets per eye (in SVG units) */
-    const offsets = [{ x: 0, y: 0 }, { x: 0, y: 0 }];
+    /* Debug marker DOM nodes (created only when DEBUG_EYES = true) */
+    const debugMarkers = [];
 
     function onMouseMove(e) {
       cursorX = e.clientX;
       cursorY = e.clientY;
     }
 
+    /* ── Debug helpers ────────────────────────────────────────────── */
+    function createDebugMarkers(portrait) {
+      if (!DEBUG_EYES || debugMarkers.length) return;
+      EYES.forEach((eye, i) => {
+        const marker = document.createElement('div');
+        marker.id = `eyeDebugMarker${i === 0 ? 'Left' : 'Right'}`;
+        marker.style.cssText = [
+          'position:fixed',
+          'width:10px',
+          'height:10px',
+          'border:2px solid rgba(255,80,80,0.9)',
+          'border-radius:50%',
+          'pointer-events:none',
+          'z-index:99999',
+          'transform:translate(-50%,-50%)',
+          'box-shadow:0 0 0 1px rgba(0,0,0,0.6)',
+          'transition:none',
+        ].join(';');
+        document.body.appendChild(marker);
+        debugMarkers.push({ marker, eye });
+      });
+    }
+
+    function updateDebugMarkers(rect) {
+      if (!DEBUG_EYES) return;
+      debugMarkers.forEach(({ marker, eye }) => {
+        const sx = rect.left + rect.width * (eye.cx / 100);
+        const sy = rect.top + rect.height * (eye.cy / 100);
+        marker.style.left = `${sx}px`;
+        marker.style.top = `${sy}px`;
+      });
+    }
+
+    /* ── Main RAF loop ────────────────────────────────────────────── */
     function loop() {
       rafId = requestAnimationFrame(loop);
 
-      /* Smooth cursor position */
+      /* Stage 1: smooth raw cursor toward smoothed position */
       smoothX += (cursorX - smoothX) * CURSOR_LAG;
       smoothY += (cursorY - smoothY) * CURSOR_LAG;
 
-      /* Get portrait bounding rect (recomputed from cached ref) */
       const portrait = document.getElementById('portraitPlaceholder');
       if (!portrait) return;
 
       const rect = portrait.getBoundingClientRect();
 
-      /*
-       * Eye anchor centre in screen-space.
-       * Anchors defined as % of portrait rect — matches SVG viewBox.
-       * Left eye: 37% across, 28.5% down.
-       * Right eye: 61.5% across, 28.5% down.
-       */
-      const eyeRegionCX = rect.left + rect.width * 0.49;  /* between both eyes */
-      const eyeRegionCY = rect.top + rect.height * 0.285; /* eye-level y */
+      /* Pixel width of the portrait — used to convert px limits → SVG units */
+      const portraitPxW = rect.width;
+      const svgUnitsPerPx = 100 / (portraitPxW || 1);
 
-      /* Distance from smooth cursor to eye region centre */
-      const dx = smoothX - eyeRegionCX;
-      const dy = smoothY - eyeRegionCY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      /* Midpoint between both eye anchors in screen space */
+      const midX = rect.left + rect.width * ((LEFT_EYE_X + RIGHT_EYE_X) / 200);
+      const midY = rect.top + rect.height * ((LEFT_EYE_Y + RIGHT_EYE_Y) / 200);
 
-      /* Proximity factor: 0 (far) → 1 (very close) */
+      /* Vector from eye midpoint to smoothed cursor */
+      const cdx = smoothX - midX;
+      const cdy = smoothY - midY;
+
+      /* Distance for proximity gating */
+      const dist = Math.sqrt(cdx * cdx + cdy * cdy);
+
+      /* Proximity factor: 0 (far/absent) → 1 (very close) */
       const prox = 1 - Math.min(1, Math.max(0,
         (dist - PROX_NEAR) / (PROX_FAR - PROX_NEAR)
       ));
 
-      /* Target opacity values driven by proximity */
-      const targetShadow = prox * SHADOW_MAX_OPACITY;
-      const targetVignette = prox * VIGNETTE_MAX_OPACITY;
-      const targetPupil = prox * PUPIL_MAX_OPACITY;
+      /* ── Shared pair offset (pixels → SVG units, clamped) ─────────
+         Both eyes receive the EXACT SAME offset — they move together
+         as a rigid pair. The natural inter-eye distance is preserved.
+         ──────────────────────────────────────────────────────────── */
+      const rawPxX = cdx * prox * prox;  // prox² → movement only when close
+      const rawPxY = cdy * prox * prox;
 
-      /* Lerp opacity states toward targets */
-      shadowOpacity += (targetShadow - shadowOpacity) * OPACITY_LAG;
-      vignetteOpacity += (targetVignette - vignetteOpacity) * OPACITY_LAG;
-      pupilOpacity += (targetPupil - pupilOpacity) * OPACITY_LAG;
+      /* Clamp to H_MAX_PX / V_MAX_PX */
+      const clampedPxX = Math.max(-H_MAX_PX, Math.min(H_MAX_PX, rawPxX));
+      const clampedPxY = Math.max(-V_MAX_PX, Math.min(V_MAX_PX, rawPxY));
 
-      /* Apply vignette opacity */
+      /* Convert to SVG viewBox units */
+      targetPairX = clampedPxX * svgUnitsPerPx;
+      targetPairY = clampedPxY * svgUnitsPerPx;
+
+      /* Stage 2: settling glide — pair offset follows its target slowly */
+      pairOffset.x += (targetPairX - pairOffset.x) * EYE_LAG;
+      pairOffset.y += (targetPairY - pairOffset.y) * EYE_LAG;
+
+      /* ── Opacity lerps ─────────────────────────────────────────── */
+      shadowOpacity += (prox * SHADOW_MAX_OPACITY - shadowOpacity) * OPACITY_LAG;
+      vignetteOpacity += (prox * VIGNETTE_MAX_OPACITY - vignetteOpacity) * OPACITY_LAG;
+      pupilOpacity += (prox * PUPIL_MAX_OPACITY - pupilOpacity) * OPACITY_LAG;
+
       if (vignetteEl) vignetteEl.style.opacity = vignetteOpacity.toFixed(4);
 
-      /* Per-eye: compute pupil offset and apply shadows */
-      EYES.forEach((eye, i) => {
+      /* ── Apply identical offset to both pupils ─────────────────── */
+      EYES.forEach((eye) => {
         if (!eye.el) return;
 
-        /* Eye anchor in screen space */
-        const eyeScreenX = rect.left + rect.width * (eye.cx / 100);
-        const eyeScreenY = rect.top + rect.height * (eye.cy / 100);
-
-        /* Direction vector from eye anchor to smooth cursor */
-        const edx = smoothX - eyeScreenX;
-        const edy = smoothY - eyeScreenY;
-        const len = Math.sqrt(edx * edx + edy * edy) || 1;
-
-        /* Normalise and scale by proximity × max drift */
-        /*
-         * The pupil moves toward the cursor but is heavily capped.
-         * prox² means at medium distance there is almost no movement
-         * — only when very close does the pupil visibly shift.
-         * This creates the uncanny: the portrait "barely" moves.
-         */
-        const intensity = prox * prox * MAX_DRIFT;
-        const targetOffX = (edx / len) * intensity;
-        const targetOffY = (edy / len) * intensity;
-
-        /* Lerp individual pupil offsets */
-        offsets[i].x += (targetOffX - offsets[i].x) * CURSOR_LAG;
-        offsets[i].y += (targetOffY - offsets[i].y) * CURSOR_LAG;
-
-        /* Apply SVG transform — translate in viewBox units */
+        /* Both eyes share the exact same transform — rigid pair */
         eye.el.setAttribute('transform',
-          `translate(${offsets[i].x.toFixed(3)}, ${offsets[i].y.toFixed(3)})`
+          `translate(${pairOffset.x.toFixed(3)}, ${pairOffset.y.toFixed(3)})`
         );
 
-        /* Pupil opacity */
         eye.el.style.opacity = pupilOpacity.toFixed(4);
 
-        /* Socket shadow opacity */
         if (eye.shadowEl) {
           eye.shadowEl.style.opacity = shadowOpacity.toFixed(4);
         }
       });
+
+      /* ── Debug markers ─────────────────────────────────────────── */
+      if (DEBUG_EYES) {
+        createDebugMarkers(portrait);
+        updateDebugMarkers(rect);
+      }
     }
 
     return {
@@ -1202,20 +1291,15 @@
         if (initialized) return;
         initialized = true;
 
-        /* Cache DOM refs */
         EYES[0].el = document.getElementById('eyePupilLeft');
         EYES[0].shadowEl = document.getElementById('eyeSocketShadowLeft');
         EYES[1].el = document.getElementById('eyePupilRight');
         EYES[1].shadowEl = document.getElementById('eyeSocketShadowRight');
         vignetteEl = document.getElementById('portraitVignette');
 
-        /* Guard — bail if portrait is not in DOM */
         if (!EYES[0].el || !EYES[1].el) return;
 
-        /* Track cursor globally (portrait can be scrolled into view) */
         window.addEventListener('mousemove', onMouseMove, { passive: true });
-
-        /* Kick off RAF loop */
         loop();
       },
 
@@ -1223,6 +1307,8 @@
         if (rafId) cancelAnimationFrame(rafId);
         rafId = null;
         window.removeEventListener('mousemove', onMouseMove);
+        debugMarkers.forEach(({ marker }) => marker.remove());
+        debugMarkers.length = 0;
       },
     };
   }());
